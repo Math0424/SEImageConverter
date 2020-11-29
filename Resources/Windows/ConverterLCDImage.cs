@@ -32,6 +32,7 @@ namespace SEImageConverter.Resources.Windows
             ConvertedImage = new string[X, Y];
 
             MagickImage image = Converter.MyPreviewImage;
+
             int width = (image.Width / Y);
             int height = (image.Height / X);
 
@@ -47,8 +48,15 @@ namespace SEImageConverter.Resources.Windows
                         for (int x1 = y * width; x1 < (y * width) + width; x1++)
                         {
                             var p = c.GetPixel(x1, y1).ToColor();
-                            byte[] b = p.ToByteArray();
-                            frame.Append(Utils.ColorToChar(Mode, b[0], b[1], b[2]));
+                            if(p.A < 100)
+                            {
+                                frame.Append(Utils.ColorToChar(Mode, 0, 0, 0));
+                            } 
+                            else
+                            {
+                                byte[] b = p.ToByteArray();
+                                frame.Append(Utils.ColorToChar(Mode, b[0], b[1], b[2]));
+                            }
                         }
                         frame.Append("\n");
                     }

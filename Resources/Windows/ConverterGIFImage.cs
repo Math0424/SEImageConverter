@@ -412,6 +412,7 @@ namespace SEImageConverter.Resources.Windows
             Parallel.For(0, collection.Count, (i) => 
             {
                 MagickImage frame = (MagickImage)collection[i];
+
                 Converter.Instance.Dispatcher.Invoke(() => Converter.Instance.ConvertImage(frame));
 
                 using var c = frame.GetPixelsUnsafe();
@@ -421,8 +422,15 @@ namespace SEImageConverter.Resources.Windows
                     for (int x = 0; x < frame.Width; x++)
                     {
                         var p = c.GetPixel(x, y).ToColor();
-                        byte[] b = p.ToByteArray();
-                        myFrame.Append(Utils.ColorToChar(Mode, b[0], b[1], b[2]));
+                        if (p.A < 100)
+                        {
+                            myFrame.Append(Utils.ColorToChar(Mode, 0, 0, 0));
+                        }
+                        else
+                        {
+                            byte[] b = p.ToByteArray();
+                            myFrame.Append(Utils.ColorToChar(Mode, b[0], b[1], b[2]));
+                        }
                     }
                     myFrame.Append("\n");
                 }
