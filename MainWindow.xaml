@@ -1,0 +1,97 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:res="clr-namespace:SEImageConverter.Resources.Enums"
+        xmlns:System="clr-namespace:System;assembly=System.Runtime" x:Name="SEImageConverter" x:Class="SEImageConverter.Converter"
+        mc:Ignorable="d"
+        Title="SEImageConverter" Height="506" Width="540" ScrollViewer.VerticalScrollBarVisibility="Disabled" ResizeMode="NoResize" Background="#FF23272A" BorderBrush="#FF2C2F33" Foreground="#FF99AAB5">
+    <Grid x:Name="MainGrid" VerticalAlignment="Top" Height="471" HorizontalAlignment="Center" Width="540">
+        <ComboBox x:Name="SelectionMenu" ItemsSource="{Binding Source={res:EnumBindingSource {x:Type res:ConvertMode}}}" HorizontalAlignment="Left" Margin="10,8,0,0" VerticalAlignment="Top" Width="165" Background="#FF7289DA" BorderBrush="#FF7289DA" Foreground="#FF7289DA" AllowDrop="True" SelectionChanged="SelectionMenu_SelectionChanged" FontWeight="Bold" SelectedIndex="0" d:IsLocked="True"/>
+        <Grid x:Name="ImagePreviewGrid" Margin="10,85,0,0" Background="#FF2C2F33" HorizontalAlignment="Left" Width="250" Height="374" VerticalAlignment="Top" d:IsLocked="True" d:IsHidden="True">
+            <GroupBox x:Name="ImagePreviewBox" Header="ImagePreview" Margin="0,-10,0,0" Foreground="#FF7289DA" BorderBrush="White" d:IsLocked="True"/>
+            <Image x:Name="PreviewImage" Margin="22,10,22,0" Height="206" VerticalAlignment="Top" SnapsToDevicePixels="True"/>
+            <Grid x:Name="ImageResizeGrid" Margin="0,217,0,0" d:IsLocked="True">
+                <Label x:Name="SizeSliderValueLbl" Content="x1.00" Margin="0,12,10,0" Foreground="#FF7289DA" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" FontWeight="Bold" VerticalAlignment="Top" Height="25" HorizontalAlignment="Right" Width="63"/>
+                <Label x:Name="ImageSizeLbl" Margin="10,12,115,0" Foreground="#FF7289DA" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" FontWeight="Bold" VerticalAlignment="Top" Height="24" Content="Size: 0x0"/>
+                <Slider x:Name="ImageScaleSlider" Margin="10,35,10,0" VerticalAlignment="Top" Minimum="0.01" LargeChange="0.1" Value="1" Foreground="#00E5E5E5" ValueChanged="ImageSlider_ValueChanged" Maximum="1"/>
+                <GroupBox x:Name="ImageScaleBox" Header="ImageScale" BorderBrush="White" Foreground="#FF7289DA"/>
+            </Grid>
+            <Grid x:Name="ImageOptionsGrid" Margin="0,280,0,0">
+                <Label x:Name="InterpolateMethodLbl" Margin="5,0,0,29" Foreground="#FF7289DA" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" FontWeight="Bold" Content="InterpolationMethod" HorizontalAlignment="Left" Width="230" VerticalAlignment="Bottom" d:IsLocked="True"/>
+                <Label x:Name="DitherMethodLbl" Margin="5,0,0,67" Foreground="#FF7289DA" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" FontWeight="Bold" Content="DitherMethod" HorizontalAlignment="Left" Width="230" VerticalAlignment="Bottom" d:IsLocked="True"/>
+                <ComboBox x:Name="InterpolationSelection" ItemsSource="{Binding Source={res:EnumBindingSource {x:Type res:InterpolationMethod}}}" HorizontalAlignment="Left" Margin="10,0,0,10" VerticalAlignment="Bottom" Width="165" Background="#FF7289DA" BorderBrush="#FF7289DA" Foreground="#FF7289DA" AllowDrop="True" FontWeight="Bold" SelectedIndex="0" SelectionChanged="ImageOptionsChanged"/>
+                <ComboBox x:Name="DitherModeSelection" ItemsSource="{Binding Source={res:EnumBindingSource {x:Type res:DitherMode}}}" HorizontalAlignment="Left" Margin="10,0,0,49" VerticalAlignment="Bottom" Width="165" Background="#FF7289DA" BorderBrush="#FF7289DA" Foreground="#FF7289DA" AllowDrop="True" FontWeight="Bold" SelectedIndex="0" SelectionChanged="ImageOptionsChanged"/>
+                <Button x:Name="RotateImageBtn" Content="Rotate" Background="#FF7289DA" BorderBrush="#FF23272A" Foreground="White" FontWeight="Bold" Height="33" Margin="186,36,0,0" Width="55" HorizontalAlignment="Left" VerticalAlignment="Top" Click="RotateImageBtn_Click"/>
+                <GroupBox x:Name="ImageOptionsBox" Header="ImageOptions" Margin="0,-10,0,0" BorderBrush="White" Foreground="#FF7289DA" d:IsLocked="True"/>
+            </Grid>
+        </Grid>
+        <Grid x:Name="FileSelectGrid" Margin="10,43,0,0" Background="#FF2C2F33" Height="33" VerticalAlignment="Top" HorizontalAlignment="Left" Width="505" d:IsLocked="True">
+            <TextBox x:Name="FilePathTxt" Margin="10,0,77,7" Text="ImagePath" TextWrapping="NoWrap" VerticalAlignment="Bottom" Background="#FF2C2F33" BorderBrush="#00ABADB3" Foreground="#FF7289DA" FlowDirection="RightToLeft" HorizontalContentAlignment="Right" FontWeight="Bold" MaxLines="1" IsReadOnly="True" IsUndoEnabled="False" Focusable="False" AllowDrop="False"/>
+            <Button x:Name="SelectFileBtn" Content="Select" Margin="442,0,6,0" VerticalAlignment="Center" Background="#FF7289DA" BorderBrush="#FF23272A" Foreground="White" FontWeight="Bold" Click="SelectFileBtn_Click"/>
+            <GroupBox x:Name="FileSelectBox" Header="FileSelection" Margin="0,-10,0,0" Foreground="#FF7289DA" BorderBrush="White" d:IsLocked="True"/>
+        </Grid>
+        <Grid x:Name="ImageAdvancedGrid" Margin="265,356,0,0" Background="#FF2C2F33" HorizontalAlignment="Left" Width="149" Height="103" VerticalAlignment="Top" d:IsLocked="True" d:IsHidden="True">
+            <GroupBox x:Name="AdvancedImageBox" Header="AdvancedImageOptions" Margin="0,-10,0,0" Foreground="#FF7289DA" BorderBrush="White" d:IsLocked="True"/>
+            <Label x:Name="LCDSizeLbl" Margin="7,6,78,0" Foreground="#FF7289DA" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" FontWeight="Bold" VerticalAlignment="Top" Height="24" Content="LCDSize"/>
+            <ComboBox x:Name="LCDSizeSelection" ItemsSource="{Binding Source={res:EnumBindingSource {x:Type res:LCDSize}}}" HorizontalAlignment="Left" Margin="10,29,0,0" Width="109" Background="#FF7289DA" BorderBrush="#FF7289DA" Foreground="#FF7289DA" AllowDrop="True" FontWeight="Bold" SelectedIndex="0" SelectionChanged="ImageOptionsChanged" Height="22" VerticalAlignment="Top"/>
+            <Label x:Name="BitModeLbl" Margin="7,49,78,0" Foreground="#FF7289DA" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" FontWeight="Bold" VerticalAlignment="Top" Height="24" Content="BitMode"/>
+            <ComboBox x:Name="BitModeSelection" ItemsSource="{Binding Source={res:EnumBindingSource {x:Type res:BitMode}}}" HorizontalAlignment="Left" Margin="9,72,0,0" VerticalAlignment="Top" Width="55" Background="#FF7289DA" BorderBrush="#FF7289DA" Foreground="#FF7289DA" AllowDrop="True" FontWeight="Bold" SelectedIndex="0" SelectionChanged="ImageOptionsChanged"/>
+        </Grid>
+        <Grid x:Name="Image2LCDGrid" Margin="265,85,0,0" HorizontalAlignment="Left" Width="255" Height="257" VerticalAlignment="Top" Background="#FF2C2F33" d:IsLocked="True" d:IsHidden="True">
+            <Label x:Name="ImageXlbl" Margin="31,3,139,0" Foreground="#FF7289DA" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontWeight="Bold" VerticalAlignment="Top" Height="27" Content="LCDXHeight"/>
+            <TextBox x:Name="ImageXInput" Margin="76,27,149,0" Text="1" TextWrapping="NoWrap" Background="#FF2C2F33" BorderBrush="#FF23272A" Foreground="#FF7289DA" FlowDirection="LeftToRight" HorizontalContentAlignment="Left" FontWeight="Bold" MaxLines="1" AllowDrop="False" VerticalContentAlignment="Center" Height="18" VerticalAlignment="Top" IsUndoEnabled="False" MaxLength="1" TextChanged="ImageLCDInputChanged"/>
+            <Label x:Name="ImageYlbl" Margin="136,3,34,0" Foreground="#FF7289DA" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontWeight="Bold" VerticalAlignment="Top" Height="27" Content="LCDYWidth"/>
+            <TextBox x:Name="ImageYInput" Margin="141,27,84,0" Text="1" TextWrapping="NoWrap" Background="#FF2C2F33" BorderBrush="#FF23272A" Foreground="#FF7289DA" FlowDirection="LeftToRight" HorizontalContentAlignment="Left" FontWeight="Bold" MaxLines="1" AllowDrop="False" VerticalContentAlignment="Center" Height="18" VerticalAlignment="Top" IsUndoEnabled="False" MaxLength="1" TextChanged="ImageLCDInputChanged"/>
+            <Label x:Name="ImageNumberLbl" Margin="114,23,121,0" Foreground="#FF7289DA" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontWeight="Bold" VerticalAlignment="Top" Height="28" Content="X"/>
+            <UniformGrid x:Name="Image2LCDBtnArry" Margin="28,49,27,8" Width="200" Background="#FF99AAB5" Height="200"/>
+            <GroupBox x:Name="Image2LCDBox" Header="Image2LCD" Margin="0,-10,0,0" Foreground="#FF7289DA" BorderBrush="White" d:IsLocked="True"/>
+        </Grid>
+        <Grid x:Name="Gif2LCDGrid" Margin="265,85,0,0" HorizontalAlignment="Left" Width="255" Height="257" VerticalAlignment="Top" Background="#FF2C2F33" d:IsLocked="True" d:IsHidden="True">
+            <Label x:Name="Gif2LCDWarning" Margin="10,10,10,0" Foreground="#FFE67575" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontWeight="Bold" VerticalAlignment="Top" Height="26" Content="WARNING: GIF2LCD IS NOT MULTIPLAYER" FontSize="11" d:IsLocked="True"/>
+            <Label x:Name="Gif2LCDWarning2" Margin="10,21,10,0" Foreground="#FFE67575" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontWeight="Bold" VerticalAlignment="Top" Height="26" Content="SAFE AND CAN BRING DOWN A SERVER" FontSize="11" d:IsLocked="True"/>
+            <Label x:Name="GifNameLbl" Margin="10,48,181,0" Foreground="#FF7289DA" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontWeight="Bold" VerticalAlignment="Top" Height="27" Content="GifName" d:IsLocked="True"/>
+            <TextBox x:Name="GifNameInput" Margin="79,52,10,0" Text="BlueprintNameHere" TextWrapping="NoWrap" Background="#FF2C2F33" BorderBrush="#FF23272A" Foreground="#FF7289DA" FlowDirection="LeftToRight" HorizontalContentAlignment="Left" FontWeight="Bold" MaxLines="1" AllowDrop="False" VerticalContentAlignment="Center" Height="21" VerticalAlignment="Top" MaxLength="30" TextChanged="GifNameInput_TextChanged"/>
+            <ProgressBar x:Name="GifConvertProgressOne" HorizontalAlignment="Center" Height="28" VerticalAlignment="Top" Width="235" Margin="0,167,0,0"/>
+            <ProgressBar x:Name="GifConvertProgressTwo" HorizontalAlignment="Center" Height="28" Margin="0,203,0,0" VerticalAlignment="Top" Width="235" d:IsLocked="True"/>
+            <Label x:Name="GridSizeLbl" Foreground="#FF7289DA" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontWeight="Bold" VerticalAlignment="Top" Height="27" Content="GridSize" Margin="10,76,181,0"/>
+            <ComboBox x:Name="GifGridSizeSelection" ItemsSource="{Binding Source={res:EnumBindingSource {x:Type res:GridSize}}}" HorizontalAlignment="Left" Margin="80,0,0,157" VerticalAlignment="Bottom" Width="82" Background="#FF7289DA" BorderBrush="#FF7289DA" Foreground="#FF7289DA" AllowDrop="True" FontWeight="Bold" SelectedIndex="0" SelectionChanged="GifGridSizeSelection_SelectionChanged" d:IsLocked="True"/>
+            <Label x:Name="GifMultiBlockModeLbl" Margin="10,104,170,0" Foreground="#FF7289DA" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontWeight="Bold" VerticalAlignment="Top" Height="26" Content="Multiblock"/>
+            <Button x:Name="GifMultiBlockModeBtn" Content="Disabled" Margin="79,107,119,0" VerticalAlignment="Top" Background="#FF7289DA" BorderBrush="#FF23272A" Foreground="White" FontWeight="Bold" Click="GifMultiBlockModeBtn_Click"/>
+            <GroupBox x:Name="GIF2LCDBox" Header="GIF2LCD" Margin="0,-10,0,0" Foreground="#FF7289DA" BorderBrush="White" d:IsLocked="True"/>
+            <Label x:Name="FunnyBarGifLCDLbl" Margin="10,140,41,0" Foreground="#FF7289DA" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontWeight="Bold" VerticalAlignment="Top" Height="27" Content="Funny green bar to watch load"/>
+        </Grid>
+        <Grid x:Name="Image2BlueprintGrid" Margin="265,85,0,0" HorizontalAlignment="Left" Width="255" Height="147" VerticalAlignment="Top" Background="#FF2C2F33" d:IsHidden="True" d:IsLocked="True">
+            <Label x:Name="BlueprintWarningLbl" Margin="10,9,10,0" Foreground="#FFE67575" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontWeight="Bold" VerticalAlignment="Top" Height="26" Content="Large images may be slow when editing" FontSize="11"/>
+            <Label x:Name="BlueprintNameLbl" Margin="10,42,176,0" Foreground="#FF7289DA" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontWeight="Bold" VerticalAlignment="Top" Height="27" Content="Name"/>
+            <TextBox x:Name="BlueprintNameInput" Margin="75,44,14,0" Text="BlueprintNameHere" TextWrapping="NoWrap" Background="#FF2C2F33" BorderBrush="#FF23272A" Foreground="#FF7289DA" FlowDirection="LeftToRight" HorizontalContentAlignment="Left" FontWeight="Bold" MaxLines="1" AllowDrop="False" VerticalContentAlignment="Center" Height="22" VerticalAlignment="Top" MaxLength="30" TextChanged="BlueprintNameInput_TextChanged"/>
+            <Label x:Name="BlueprintSizeLbl" Foreground="#FF7289DA" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontWeight="Bold" VerticalAlignment="Top" Height="27" Content="GridSize" Margin="10,76,181,0"/>
+            <ComboBox x:Name="BlueprintGridSizeSelection" ItemsSource="{Binding Source={res:EnumBindingSource {x:Type res:GridSize}}}" HorizontalAlignment="Left" Margin="76,78,0,0" VerticalAlignment="Top" Width="82" Background="#FF7289DA" BorderBrush="#FF7289DA" Foreground="#FF7289DA" AllowDrop="True" FontWeight="Bold" SelectedIndex="0" SelectionChanged="BlueprintGridSizeSelection_SelectionChanged"/>
+            <GroupBox x:Name="BlueprintBox" Header="Image2Blueprint" Margin="0,-10,0,0" Foreground="#FF7289DA" BorderBrush="White" d:IsLocked="True"/>
+        </Grid>
+        <Grid x:Name="SpraysModGenGrid" Margin="0,85,0,0" HorizontalAlignment="Center" Width="510" Height="284" VerticalAlignment="Top" Background="#FF2C2F33" d:IsLocked="True" d:IsHidden="True">
+            <TextBox x:Name="SprayModGenFolders" Margin="219,0,10,0" TextWrapping="NoWrap" Background="#FF2C2F33" BorderBrush="#FF23272A" Foreground="#FF7289DA" FlowDirection="LeftToRight" HorizontalContentAlignment="Left" FontWeight="Bold" MaxLines="1" AllowDrop="False" VerticalContentAlignment="Top" Height="264" VerticalAlignment="Center" MaxLength="30" IsReadOnly="True" IsUndoEnabled="False"/>
+            <Label x:Name="SprayModNameLbl" Margin="10,22,398,0" Foreground="#FF7289DA" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontWeight="Bold" VerticalAlignment="Top" Height="27" Content="Addon Name"/>
+            <Label x:Name="SprayModGenBarLbl" Margin="10,177,296,0" Foreground="#FF7289DA" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontWeight="Bold" VerticalAlignment="Top" Height="27" Content="Funny green bar to watch load"/>
+            <ProgressBar x:Name="SprayModGenProgress" HorizontalAlignment="Left" Height="28" VerticalAlignment="Top" Width="204" Margin="10,209,0,0"/>
+            <TextBox x:Name="SprayModNameInput" Margin="10,49,296,0" Text="MyFirstSpraysMod" TextWrapping="NoWrap" Background="#FF2C2F33" BorderBrush="#FF23272A" Foreground="#FF7289DA" FlowDirection="LeftToRight" HorizontalContentAlignment="Left" FontWeight="Bold" MaxLines="1" AllowDrop="False" VerticalContentAlignment="Center" Height="22" VerticalAlignment="Top" MaxLength="30" TextChanged="BlueprintNameInput_TextChanged"/>
+            <GroupBox x:Name="SpraysModGenBox" Header="SpraysModGenerator" Margin="0,-10,0,0" Foreground="#FF7289DA" BorderBrush="White" d:IsLocked="True"/>
+        </Grid>
+        <Grid x:Name="Image2DDSGrid" Margin="265,85,0,0" HorizontalAlignment="Left" Width="255" Height="257" VerticalAlignment="Top" Background="#FF2C2F33" d:IsHidden="True" d:IsLocked="True">
+            <GroupBox x:Name="Image2DDSBox" Header="Image2DDS" Margin="0,-10,0,0" Foreground="#FF7289DA" BorderBrush="White" d:IsLocked="True"/>
+            <TextBlock x:Name="Image2DDSInfo" HorizontalAlignment="Center" Margin="0,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="190" Width="235"><Run Text="Image2DDS is a simple tool that will turn images into a basic DDS image that SE can read, with an optional mask image aswell."/><LineBreak/><Run/><LineBreak/><Run/><LineBreak/><Run Text="I made it because I found generating DDS images for SE to be a pain"/><LineBreak/><Run/><LineBreak/><Run Text="The output is a BC3_UNORM DDS"/><LineBreak/><Run/></TextBlock>
+            <CheckBox x:Name="Image2DDSMaskCbx" Content="GenerateMask" HorizontalAlignment="Left" Margin="10,0,0,10" Foreground="#FF7289DA" BorderBrush="#FF2C2F33" Height="15" VerticalAlignment="Bottom" Checked="Image2DDSMaskCbx_Checked"/>
+        </Grid>
+        <Button x:Name="ConvertBtn" Content="Convert" Margin="437,374,22,0" VerticalAlignment="Top" Background="#FF7289DA" BorderBrush="#FF23272A" Foreground="White" FontWeight="Bold" Height="61" Click="ConvertBtn_Click" FontSize="14" d:IsLocked="True"/>
+        <Label x:Name="MadeByLbl" Margin="180,5,225,0" Foreground="#FF7289DA" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontWeight="Bold" VerticalAlignment="Top" Height="27" Content="Made by: Math0424" d:IsLocked="True"/>
+        <Rectangle x:Name="RunningGrayout" Stroke="#00000000" Visibility="Hidden" d:IsHidden="True" Focusable="True">
+            <Rectangle.Fill>
+                <SolidColorBrush Color="#FF2C2F33" Opacity="0.5"/>
+            </Rectangle.Fill>
+        </Rectangle>
+    </Grid>
+
+
+
+</Window>
