@@ -101,7 +101,7 @@ namespace SEImageConverter.Resources.Windows
                         text.Write(Cube
                             .Replace("{size}", GridSize.ToString())
                             .Replace("{x}", x.ToString())
-                            .Replace("{y}", "-"+y.ToString())
+                            .Replace("{y}", "-" + y.ToString())
                             .Replace("{h}", b[0].ToString())
                             .Replace("{s}", b[1].ToString())
                             .Replace("{v}", b[2].ToString())

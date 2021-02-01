@@ -21,7 +21,7 @@ namespace SEImageConverter.Resources.Windows
             Mode = bitMode;
 
             int[] size = Utils.LCDSizeToNum((LCDSize)Converter.Instance.LCDSizeSelection.SelectedItem);
-            
+
             image.InterpolativeResize(size[1] * Y, size[0] * X, pixelInterpolate);
 
             image.Depth = bitMode == BitMode.Bit3 ? 3 : 5;

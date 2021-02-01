@@ -2,7 +2,6 @@
 using SEImageConverter.Resources.Enums;
 using System;
 using System.IO;
-using System.Windows;
 
 namespace SEImageConverter.Resources.Windows
 {
@@ -50,6 +49,8 @@ namespace SEImageConverter.Resources.Windows
                 color.Settings.SetDefine(MagickFormat.Dds, "mipmaps", "10");
                 color.Settings.SetDefine(MagickFormat.Dds, "cluster-fit", "true");
                 color.Write(MyImagePath + "_c.dds");
+
+                color.Dispose();
             }
 
             if (GenerateMask)
@@ -63,12 +64,15 @@ namespace SEImageConverter.Resources.Windows
                     alpha.Extent(length, length, Gravity.Center, new MagickColor(0, 0, 0, 0));
 
                     alpha.Grayscale();
-                    foreach (Pixel p in alpha.GetPixels())
+
+                    var pixels = alpha.GetPixels();
+                    foreach (Pixel p in pixels)
                     {
                         MagickColor c = (MagickColor)p.ToColor();
                         p.SetChannel(0, c.A);
                         p.SetChannel(1, 0);
                     }
+                    pixels.Dispose();
 
                     alpha.Format = MagickFormat.Dds;
                     alpha.Settings.SetDefine(MagickFormat.Dds, "compression", "dxt5"); //dxt1, dxt5, none
@@ -76,10 +80,11 @@ namespace SEImageConverter.Resources.Windows
                     alpha.Settings.SetDefine(MagickFormat.Dds, "mipmaps", "10");
                     alpha.Settings.SetDefine(MagickFormat.Dds, "cluster-fit", "true");
                     alpha.Write(MyImagePath + "_a.dds");
+
+                    alpha.Dispose();
                 }
             }
-
-
+            
         }
 
         public override void SelectFile()

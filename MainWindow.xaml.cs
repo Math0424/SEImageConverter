@@ -3,13 +3,7 @@ using SEImageConverter.Resources.Enums;
 using SEImageConverter.Resources.Util;
 using SEImageConverter.Resources.Windows;
 using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -33,15 +27,16 @@ namespace SEImageConverter
         public Converter()
         {
             Instance = this;
-            
+            ResourceLimits.Memory = 500000000;
+
             converters = new WindowConverter[Enum.GetValues(typeof(ConvertMode)).Length];
 
 
-            converters[(int)ConvertMode.Image2LCD]          = new ConverterLCDImage();
-            converters[(int)ConvertMode.GIF2LCD]            = new ConverterGIFImage();
-            converters[(int)ConvertMode.Image2Blueprint]    = new ConverterImageBlueprint();
+            converters[(int)ConvertMode.Image2LCD] = new ConverterLCDImage();
+            converters[(int)ConvertMode.GIF2LCD] = new ConverterGIFImage();
+            converters[(int)ConvertMode.Image2Blueprint] = new ConverterImageBlueprint();
             converters[(int)ConvertMode.SpraysModGenerator] = new ConverterSpraysMod();
-            converters[(int)ConvertMode.Image2DDS]          = new ConverterDDSImage();
+            converters[(int)ConvertMode.Image2DDS] = new ConverterDDSImage();
 
             InitializeComponent();
             foreach (WindowConverter c in converters)
@@ -113,13 +108,14 @@ namespace SEImageConverter
         //UI CODE BELOW
         private void SelectionMenu_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            MyPreviewImage?.Dispose();
             ResetState();
             foreach (WindowConverter c in converters)
             {
                 c?.SetVisible(false);
             }
-            currentWindow = converters[(int)((ConvertMode)SelectionMenu.SelectedItem)];
             currentWindow?.Reset();
+            currentWindow = converters[(int)((ConvertMode)SelectionMenu.SelectedItem)];
             currentWindow?.SetVisible(true);
         }
 
@@ -152,11 +148,12 @@ namespace SEImageConverter
             if (error == null)
             {
                 RunningGrayout.Visibility = Visibility.Visible;
-                Thread thread = new Thread(() => {
+                Thread thread = new Thread(() =>
+                {
                     try
                     {
                         currentWindow?.Convert();
-                    } 
+                    }
                     catch (Exception e)
                     {
                         MessageBox.Show("ERROR: " + e.ToString());
@@ -165,7 +162,7 @@ namespace SEImageConverter
                 });
                 thread.IsBackground = true;
                 thread.Start();
-            } 
+            }
             else
             {
                 MessageBox.Show("Error, cannot convert.\nMissing: " + error);
@@ -174,7 +171,7 @@ namespace SEImageConverter
 
         private void ImageLCDInputChanged(object sender, TextChangedEventArgs e)
         {
-            if (currentWindow is ConverterLCDImage w && Image2LCDBtnArry != null && 
+            if (currentWindow is ConverterLCDImage w && Image2LCDBtnArry != null &&
                 int.TryParse(ImageXInput?.Text, out int x) && int.TryParse(ImageYInput?.Text, out int y))
             {
                 w.Reset();
@@ -203,7 +200,7 @@ namespace SEImageConverter
 
                         Grid.SetColumn(b, X);
                         Grid.SetRow(b, Y);
-                        
+
                         Image2LCDBtnArry.Children.Add(b);
 
                     }
@@ -229,7 +226,7 @@ namespace SEImageConverter
                         Clipboard.SetText(s);
                         tool.Content = "Copied to clipboard";
                         b.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(114, 137, 218));
-                    } 
+                    }
                     catch
                     {
                         tool.Content = "Couldnt copy to clipboard, please try again";
@@ -261,10 +258,10 @@ namespace SEImageConverter
         {
             bool multi = ((ConverterGIFImage)converters[(int)ConvertMode.GIF2LCD]).Multiblock;
             ((ConverterGIFImage)converters[(int)ConvertMode.GIF2LCD]).Multiblock = !multi;
-            if(multi)
+            if (multi)
             {
                 ((Button)sender).Content = "Disabled";
-            } 
+            }
             else
             {
                 ((Button)sender).Content = "Enabled";
@@ -285,6 +282,6 @@ namespace SEImageConverter
         {
             ((ConverterDDSImage)converters[(int)ConvertMode.Image2DDS]).GenerateMask = ((CheckBox)sender).IsChecked.Value;
         }
-        
+
     }
 }

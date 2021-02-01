@@ -16,7 +16,7 @@ namespace SEImageConverter.Resources.Windows
             if (Converter.MyPreviewImage == null)
             {
                 message += "Image, ";
-            } 
+            }
             if (X == 0 || Y == 0)
             {
                 message += "Non zero X or Y, ";
@@ -48,10 +48,10 @@ namespace SEImageConverter.Resources.Windows
                         for (int x1 = y * width; x1 < (y * width) + width; x1++)
                         {
                             var p = c.GetPixel(x1, y1).ToColor();
-                            if(p.A < 100)
+                            if (p.A < 100)
                             {
                                 frame.Append(Utils.ColorToChar(Mode, 0, 0, 0));
-                            } 
+                            }
                             else
                             {
                                 byte[] b = p.ToByteArray();
@@ -65,7 +65,7 @@ namespace SEImageConverter.Resources.Windows
 
                 }
             }
-            
+
             c.Dispose();
 
         }

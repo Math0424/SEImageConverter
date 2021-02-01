@@ -409,7 +409,7 @@ namespace SEImageConverter.Resources.Windows
             Converter.Instance.GifConvertProgressOne.Dispatcher.Invoke(() => { Converter.Instance.GifConvertProgressOne.Maximum = collection.Count - 1; });
 
             int count = 0;
-            Parallel.For(0, collection.Count, (i) => 
+            Parallel.For(0, collection.Count, (i) =>
             {
                 MagickImage frame = (MagickImage)collection[i];
 
@@ -484,7 +484,7 @@ namespace SEImageConverter.Resources.Windows
                     text.Close();
                 }
 
-            } 
+            }
             else
             {
 
@@ -493,7 +493,7 @@ namespace SEImageConverter.Resources.Windows
                 Directory.CreateDirectory(blueprintPath);
                 collection[collection.Count / 2].Write(blueprintPath + "/thumb.png");
                 StreamWriter text = File.CreateText(blueprintPath + "/bp.sbc");
-                
+
                 StringBuilder finalOutputFrames = new StringBuilder();
                 for (int i = 0; i < outputFrames.Length; i++)
                 {

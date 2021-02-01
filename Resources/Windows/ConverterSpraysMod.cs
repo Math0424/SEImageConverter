@@ -119,7 +119,8 @@ namespace MySprayMod
             string MyModPath = "";
             string InputName = "";
 
-            Converter.Instance.Dispatcher.Invoke(() => {
+            Converter.Instance.Dispatcher.Invoke(() =>
+            {
                 Converter.Instance.SprayModGenProgress.Maximum = ((Sprays.Count - 1) * 2) + 4;
                 Converter.Instance.SprayModGenProgress.Value = 1;
                 MyModPath = ModPath + "[SpraysAddon]" + Converter.Instance.SprayModNameInput.Text;
@@ -169,12 +170,13 @@ namespace MySprayMod
                         .Replace("NoNormalMapHere", spray.Shine != Shine.NONE ? spray.Id + "_n.dds" : "NoNormalMapHere")
                         .Replace("{size}", i.ToString())
                         .Replace("{extra}", "")
+                        .Replace("Textures", $"C:\\Users\\Math0424\\AppData\\Roaming\\SpaceEngineers\\Mods\\[SpraysAddon]{InputName}\\Textures")
                         );
                 }
 
                 if (((ExtraValues)spray.Flags).HasFlag(ExtraValues.Animated))
                 {
-                    for (int f = 0; f <= spray.FrameCount; f++)
+                    for (int f = 0; f < spray.FrameCount; f++)
                     {
                         for (int i = 1; i <= GlobalSizes; i++)
                         {
@@ -276,12 +278,14 @@ namespace MySprayMod
                     Converter.Instance.Dispatcher.Invoke(() => { Converter.Instance.SprayModGenProgress.Maximum += spray.FrameCount; });
                     for (int i = 0; i < spray.FrameCount; i++)
                     {
-                        SaveImageToFile(spray.Images[i], imagePath+"_"+i, spray.Shine);
+                        SaveImageToFile(spray.Images[i], imagePath + "_" + i, spray.Shine);
                         Converter.Instance.Dispatcher.Invoke(() => { Converter.Instance.SprayModGenProgress.Value += 1; });
                     }
                 }
 
                 Converter.Instance.Dispatcher.Invoke(() => { Converter.Instance.SprayModGenProgress.Value += 1; });
+
+                spray.Dispose();
 
             });
 
@@ -289,46 +293,36 @@ namespace MySprayMod
 
         private void SaveImageToFile(MagickImage image, string name, Shine shine)
         {
-            using (MagickImage color = (MagickImage)image.Clone())
-            {
-                color.Format = MagickFormat.Dds;
-                color.Settings.SetDefine(MagickFormat.Dds, "compression", "dxt5"); //dxt1, dxt5, none
-                color.Settings.SetDefine(MagickFormat.Dds, "fast-mipmaps", "true"); //quickly do nothing
-                color.Settings.SetDefine(MagickFormat.Dds, "mipmaps", "0");
-                color.Settings.SetDefine(MagickFormat.Dds, "cluster-fit", "true");
-                color.Write(name + "_c.dds");
-            }
 
-            using (MagickImage alpha = (MagickImage)image.Clone())
+            using (MagickImage newImage = (MagickImage)image.Clone())
             {
-                alpha.Grayscale();
-                foreach (Pixel p in alpha.GetPixels())
+                newImage.Format = MagickFormat.Dds;
+                newImage.Settings.SetDefine(MagickFormat.Dds, "compression", "dxt5"); //dxt1, dxt5, none
+                newImage.Settings.SetDefine(MagickFormat.Dds, "fast-mipmaps", "true"); //quickly do nothing
+                newImage.Settings.SetDefine(MagickFormat.Dds, "mipmaps", "0");
+                newImage.Settings.SetDefine(MagickFormat.Dds, "cluster-fit", "true");
+
+                newImage.Write(name + "_c.dds");
+
+                newImage.Grayscale();
+                foreach (Pixel p in newImage.GetPixels())
                 {
                     MagickColor c = (MagickColor)p.ToColor();
                     p.SetChannel(0, c.A);
                     p.SetChannel(1, 0);
                 }
-
-                alpha.Format = MagickFormat.Dds;
-                alpha.Settings.SetDefine(MagickFormat.Dds, "compression", "dxt5"); //dxt1, dxt5, none
-                alpha.Settings.SetDefine(MagickFormat.Dds, "fast-mipmaps", "true"); //quickly do nothing
-                alpha.Settings.SetDefine(MagickFormat.Dds, "mipmaps", "0");
-                alpha.Settings.SetDefine(MagickFormat.Dds, "cluster-fit", "true");
-                alpha.Write(name + "_a.dds");
+                newImage.Write(name + "_a.dds");
             }
 
             if (shine != Shine.NONE)
             {
+
                 using (MagickImage shiny = (MagickImage)image.Clone())
                 {
-                    foreach (Pixel p in shiny.GetPixels())
-                    {
-                        MagickColor c = (MagickColor)p.ToColor();
-                        p.SetChannel(0, ushort.MaxValue / 2);
-                        p.SetChannel(1, ushort.MaxValue / 2);
-                        p.SetChannel(2, ushort.MaxValue);
-                        p.SetChannel(3, (ushort)(c.A - Math.Min(c.A, (ushort)shine)));
-                    }
+                    shiny.Evaluate(Channels.Red, EvaluateOperator.Set, 32767);
+                    shiny.Evaluate(Channels.Green, EvaluateOperator.Set, 32767);
+                    shiny.Evaluate(Channels.Blue, EvaluateOperator.Set, 65535);
+                    shiny.Evaluate(Channels.Alpha, EvaluateOperator.Subtract, (ushort)shine);
 
                     shiny.Format = MagickFormat.Dds;
                     shiny.Settings.SetDefine(MagickFormat.Dds, "compression", "dxt5"); //dxt1, dxt5, none
@@ -342,12 +336,17 @@ namespace MySprayMod
 
         private void UpdateImages()
         {
+            foreach (MySpray s in Sprays)
+            {
+                s.Dispose();
+            }
             Sprays.Clear();
             Converter.Instance.SprayModNameInput.Text = Path.GetFileName(FolderPath);
             Converter.Instance.RunningGrayout.Visibility = System.Windows.Visibility.Visible;
             string baseGroup = Converter.Instance.SprayModNameInput.Text;
 
-            Thread thread = new Thread(() => {
+            Thread thread = new Thread(() =>
+            {
                 try
                 {
                     Dictionary<string, int> myImages = new Dictionary<string, int>();
@@ -363,7 +362,8 @@ namespace MySprayMod
                         myImages[group] += 1;
                     }
 
-                    Converter.Instance.Dispatcher.Invoke(() => {
+                    Converter.Instance.Dispatcher.Invoke(() =>
+                    {
                         Converter.Instance.RunningGrayout.Visibility = System.Windows.Visibility.Hidden;
                         Converter.Instance.SprayModGenFolders.Text = $"{myImages.Keys.Count} folders and {Sprays.Count} images found. \nIn-Game file structure shown below... \n\n";
                         foreach (string s in myImages.Keys)
@@ -371,6 +371,7 @@ namespace MySprayMod
                             Converter.Instance.SprayModGenFolders.Text += $"'{myImages[s]}' images in '{s}'\n";
                         }
                     });
+
                 }
                 catch (Exception e)
                 {
@@ -412,14 +413,24 @@ namespace MySprayMod
 
         public override void Reset()
         {
+            foreach (MySpray s in Sprays)
+            {
+                s.Dispose();
+            }
             Sprays.Clear();
+            Sprays = new List<MySpray>();
             FolderPath = "";
-            Converter.Instance.SprayModNameInput.Text = "MyFirstSpraysMod";
-            Converter.Instance.SprayModGenFolders.Text = "Folders here";
-            Converter.Instance.SprayModGenProgress.Value = 0;
+
+            Converter.Instance.Dispatcher.Invoke(() =>
+            {
+                Converter.Instance.SprayModNameInput.Text = "MyFirstSpraysMod";
+                Converter.Instance.SprayModGenFolders.Text = "Folders here";
+                Converter.Instance.SprayModGenProgress.Value = 0;
+            });
+
         }
 
-        private class MySpray
+        private class MySpray : IDisposable
         {
             public string Name;
             public string Id;
@@ -457,7 +468,7 @@ namespace MySprayMod
                     if (speed >= 60)
                     {
                         Flags |= (int)FPS.Fps_1 << 19;
-                    } 
+                    }
                     else if (speed >= 20)
                     {
                         Flags |= (int)FPS.Fps_5 << 19;
@@ -477,16 +488,48 @@ namespace MySprayMod
                 }
 
             }
+
+            public void Dispose()
+            {
+                if (Images != null)
+                {
+                    foreach (MagickImage image in Images)
+                    {
+                        image.Dispose();
+                    }
+                }
+                Images = null;
+            }
         }
 
         private static MagickImage[] GetBaseImage(string s, out int speed)
         {
-            MagickImageCollection collection = new MagickImageCollection(s);
-            MagickImage[] images = new MagickImage[collection.Count];
+            MagickImage[] images;
+
+            if (Path.GetExtension(s).ToLower().Equals(".gif"))
+            {
+                MagickImageCollection collection = new MagickImageCollection(s);
+                images = new MagickImage[collection.Count];
+                for (int i = 0; i < images.Length; i++)
+                {
+                    images[i] = collection[i] as MagickImage;
+                }
+
+                using (MagickImage temp = new MagickImage(s))
+                {
+                    speed = temp.AnimationDelay;
+                }
+            }
+            else
+            {
+                images = new MagickImage[1];
+                images[0] = new MagickImage(s);
+                speed = 0;
+            }
 
             for (int i = 0; i < images.Length; i++)
             {
-                MagickImage image = collection[i] as MagickImage;
+                MagickImage image = images[i];
 
                 int length = Math.Max(image.Height, image.Width) + 2;
                 length -= (length % 4);
@@ -495,14 +538,6 @@ namespace MySprayMod
                 image.Extent(length, length, Gravity.Center, new MagickColor(0, 0, 0, 0));
 
                 image.ColorAlpha(MagickColors.None);
-
-                images[i] = image;
-
-            }
-
-            using (MagickImage temp = new MagickImage(s))
-            {
-                speed = temp.AnimationDelay;
             }
 
             return images;

@@ -57,7 +57,7 @@ namespace SEImageConverter.Resources.Windows
             if (openFileDialog.ShowDialog() == true)
             {
                 return new FileInfo(openFileDialog.FileName);
-            } 
+            }
             else
             {
                 return null;
