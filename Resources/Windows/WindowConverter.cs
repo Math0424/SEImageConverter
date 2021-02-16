@@ -6,7 +6,7 @@ using System.IO;
 
 namespace SEImageConverter.Resources.Windows
 {
-    abstract class WindowConverter
+    public abstract class WindowConverter
     {
         public const string GenericImageFiles = "Image files|*.png;*.jpeg;*.jpg;*.bmp";
 

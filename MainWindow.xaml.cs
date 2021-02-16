@@ -22,7 +22,7 @@ namespace SEImageConverter
 
         private bool IsRunning = false;
         private WindowConverter[] converters;
-        private WindowConverter currentWindow;
+        public WindowConverter currentWindow { get; private set; }
 
         public Converter()
         {
@@ -30,8 +30,7 @@ namespace SEImageConverter
             ResourceLimits.Memory = 500000000;
 
             converters = new WindowConverter[Enum.GetValues(typeof(ConvertMode)).Length];
-
-
+            
             converters[(int)ConvertMode.Image2LCD] = new ConverterLCDImage();
             converters[(int)ConvertMode.GIF2LCD] = new ConverterGIFImage();
             converters[(int)ConvertMode.Image2Blueprint] = new ConverterImageBlueprint();

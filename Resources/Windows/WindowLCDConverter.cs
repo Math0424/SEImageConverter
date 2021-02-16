@@ -22,7 +22,7 @@ namespace SEImageConverter.Resources.Windows
 
             int[] size = Utils.LCDSizeToNum((LCDSize)Converter.Instance.LCDSizeSelection.SelectedItem);
 
-            if (LCDSize.SquareLCD == (LCDSize)Converter.Instance.LCDSizeSelection.SelectedItem)
+            if (Converter.Instance.currentWindow is ConverterLCDImage && LCDSize.SquareLCD == (LCDSize)Converter.Instance.LCDSizeSelection.SelectedItem)
             {
                 Converter.Instance.MakeBlueprintOfLCD.Visibility = System.Windows.Visibility.Visible;
             } 

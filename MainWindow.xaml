@@ -6,7 +6,7 @@
         xmlns:res="clr-namespace:SEImageConverter.Resources.Enums"
         xmlns:System="clr-namespace:System;assembly=System.Runtime" x:Name="SEImageConverter" x:Class="SEImageConverter.Converter"
         mc:Ignorable="d"
-        Title="SEImageConverter" Height="506" Width="540" ScrollViewer.VerticalScrollBarVisibility="Disabled" ResizeMode="NoResize" Background="#FF23272A" BorderBrush="#FF2C2F33" Foreground="#FF99AAB5">
+        Title="SEImageConverter v1.1" Height="506" Width="540" ScrollViewer.VerticalScrollBarVisibility="Disabled" ResizeMode="NoResize" Background="#FF23272A" BorderBrush="#FF2C2F33" Foreground="#FF99AAB5">
     <Grid x:Name="MainGrid" VerticalAlignment="Top" Height="471" HorizontalAlignment="Center" Width="540">
         <ComboBox x:Name="SelectionMenu" ItemsSource="{Binding Source={res:EnumBindingSource {x:Type res:ConvertMode}}}" HorizontalAlignment="Left" Margin="10,8,0,0" VerticalAlignment="Top" Width="165" Background="#FF7289DA" BorderBrush="#FF7289DA" Foreground="#FF7289DA" AllowDrop="True" SelectionChanged="SelectionMenu_SelectionChanged" FontWeight="Bold" SelectedIndex="0" d:IsLocked="True"/>
         <Grid x:Name="ImagePreviewGrid" Margin="10,85,0,0" Background="#FF2C2F33" HorizontalAlignment="Left" Width="250" Height="374" VerticalAlignment="Top" d:IsLocked="True" d:IsHidden="True">

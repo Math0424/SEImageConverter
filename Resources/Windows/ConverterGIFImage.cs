@@ -3,7 +3,6 @@ using SEImageConverter.Resources.Enums;
 using System;
 using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace SEImageConverter.Resources.Windows
@@ -398,6 +397,7 @@ namespace SEImageConverter.Resources.Windows
             }
             return message.Length == 0 ? null : message;
         }
+
         public override void Convert()
         {
             MagickImage staticImage = Converter.MyPreviewImage;
@@ -409,7 +409,8 @@ namespace SEImageConverter.Resources.Windows
             Converter.Instance.GifConvertProgressOne.Dispatcher.Invoke(() => { Converter.Instance.GifConvertProgressOne.Maximum = collection.Count - 1; });
 
             int count = 0;
-            Parallel.For(0, collection.Count, (i) =>
+
+            System.Threading.Tasks.Parallel.For(0, collection.Count, (i) =>
             {
                 MagickImage frame = (MagickImage)collection[i];
 
