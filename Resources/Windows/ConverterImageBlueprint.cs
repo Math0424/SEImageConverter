@@ -1,5 +1,6 @@
 ﻿using ImageMagick;
 using SEImageConverter.Resources.Enums;
+using SEImageConverter.Resources.Util;
 using System;
 using System.IO;
 
@@ -7,56 +8,6 @@ namespace SEImageConverter.Resources.Windows
 {
     class ConverterImageBlueprint : WindowConverter
     {
-        private const string Header = @"<?xml version=""1.0""?>
-<Definitions xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"">
-  <ShipBlueprints>
-    <ShipBlueprint xsi:type=""MyObjectBuilder_ShipBlueprintDefinition"">
-      <Id Type=""MyObjectBuilder_ShipBlueprintDefinition"" Subtype=""{name}""/>
-      <DisplayName>Math0424</DisplayName>
-      <CubeGrids>
-        <CubeGrid>
-          <SubtypeName/>
-          <EntityId>118773863687514751</EntityId>
-          <PersistentFlags>CastShadows InScene</PersistentFlags>
-          <PositionAndOrientation>
-            <Position x =""0"" y=""0"" z=""0"" />
-            <Forward x=""0"" y=""0"" z=""0"" />
-            <Up x=""0"" y=""0"" z=""0"" />
-            <Orientation >
-              <X>0</X>
-              <Y>0</Y>
-              <Z>0</Z>
-              <W>0</W>
-            </Orientation>
-          </PositionAndOrientation>
-          <GridSizeEnum>{size}</GridSizeEnum>
-          <CubeBlocks>";
-
-        private const string Footer = @"
-            </CubeBlocks>
-          <DisplayName>{name}</DisplayName>
-          <DestructibleBlocks>true</DestructibleBlocks>
-          <IsRespawnGrid>false</IsRespawnGrid>
-          <LocalCoordSys>0</LocalCoordSys>
-          <TargetingTargets />
-        </CubeGrid>
-      </CubeGrids>
-      <WorkshopId>0</WorkshopId>
-      <OwnerSteamId>76561198161316860</OwnerSteamId>
-      <Points>0</Points>
-    </ShipBlueprint>
-  </ShipBlueprints>
-</Definitions>";
-
-        private const string Cube = @"
-            <MyObjectBuilder_CubeBlock xsi:type=""MyObjectBuilder_CubeBlock"">
-              <SubtypeName>{size}BlockArmorBlock</SubtypeName>
-              <Min x = ""{x}"" y=""{y}"" z=""0"" />
-              <BlockOrientation Forward = ""Down"" Up=""Forward"" />
-              <SkinSubtypeId>Clean_Armor</SkinSubtypeId>
-              <ColorMaskHSV x = ""{h}"" y=""{s}"" z=""{v}"" />
-            </MyObjectBuilder_CubeBlock>";
-
         public string BlueprintName;
         public GridSize GridSize;
 
@@ -81,13 +32,9 @@ namespace SEImageConverter.Resources.Windows
 
         public override void Convert()
         {
-            MagickImage image = Converter.MyPreviewImage;
-            string blueprintPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/SpaceEngineers/Blueprints/local/" + BlueprintName;
-
-            Directory.CreateDirectory(blueprintPath);
-            image.Write(blueprintPath + "/thumb.png");
-            StreamWriter text = File.CreateText(blueprintPath + "/bp.sbc");
-            text.Write(Header.Replace("{size}", GridSize.ToString()).Replace("{name}", BlueprintName));
+            MagickImage image = (MagickImage)Converter.MyPreviewImage.Clone();
+            BlueprintGenerator gen = new BlueprintGenerator(image, BlueprintName);
+            gen.GridSize = GridSize;
 
             using var c = image.GetPixelsUnsafe();
             for (int y = 0; y < image.Height; y++)
@@ -98,21 +45,14 @@ namespace SEImageConverter.Resources.Windows
                     double[] b = ConvertRGB2SE(p.ToByteArray());
                     if (p.A > 100)
                     {
-                        text.Write(Cube
-                            .Replace("{size}", GridSize.ToString())
-                            .Replace("{x}", x.ToString())
-                            .Replace("{y}", "-" + y.ToString())
-                            .Replace("{h}", b[0].ToString())
-                            .Replace("{s}", b[1].ToString())
-                            .Replace("{v}", b[2].ToString())
-                            .Replace(",", "."));
+                        gen.AddCubeBlock(x, y, 0, b[0], b[1], b[2]);
                     }
                 }
             }
             c.Dispose();
 
-            text.Write(Footer.Replace("{name}", BlueprintName));
-            text.Close();
+            gen.Create();
+            gen.Dispose();
         }
 
         private double[] ConvertRGB2SE(byte[] colors)

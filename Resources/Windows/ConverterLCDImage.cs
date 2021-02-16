@@ -1,7 +1,9 @@
 ﻿using ImageMagick;
 using SEImageConverter.Resources.Enums;
+using SEImageConverter.Resources.Util;
 using System.IO;
 using System.Text;
+using System.Windows;
 
 namespace SEImageConverter.Resources.Windows
 {
@@ -9,6 +11,7 @@ namespace SEImageConverter.Resources.Windows
     {
 
         public string[,] ConvertedImage;
+        
 
         public override string CanConvert()
         {
@@ -70,6 +73,37 @@ namespace SEImageConverter.Resources.Windows
 
         }
 
+        public void MakeBlueprint()
+        {
+            string error = CanConvert();
+            if (error == null)
+            {
+                Convert();
+                string font = Mode == BitMode.Bit3 ? "Monospace" : "Mono Color";
+                BlueprintGenerator gen = new BlueprintGenerator((MagickImage)Converter.MyPreviewImage.Clone(), "LCDArray_"+Path.GetFileNameWithoutExtension(Converter.MyPreviewImage.FileName));
+                for (int y = 0; y < Y; y++)
+                {
+                    for (int x = 0; x < X; x++)
+                    {
+                        gen.AddLCDBlock(font, ConvertedImage[x, y], y, X-x, 0, 0, -0.8, 0.5);
+                    }
+                }
+                if (!gen.Create())
+                {
+                    MessageBox.Show("Failed to generate BP");
+                } 
+                else
+                {
+                    MessageBox.Show("Created BP!");
+                }
+                gen.Dispose();
+            }
+            else
+            {
+                MessageBox.Show("Error, cannot convert.\nMissing: " + error);
+            }
+        }
+
         public override void SelectFile()
         {
             FileInfo f = ImageFileSelector(GenericImageFiles);
@@ -90,6 +124,8 @@ namespace SEImageConverter.Resources.Windows
             Utils.SetVisibility(Converter.Instance.Image2LCDGrid, visible);
 
             Utils.SetVisibility(Converter.Instance.ConvertBtn, visible);
+
+            Utils.SetVisibility(Converter.Instance.MakeBlueprintOfLCD, false);
         }
 
         public override void Reset()

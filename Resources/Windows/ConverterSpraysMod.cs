@@ -161,16 +161,16 @@ namespace MySprayMod
             Converter.Instance.Dispatcher.Invoke(() => { Converter.Instance.SprayModGenProgress.Value += 1; });
             foreach (var spray in Sprays)
             {
-                StreamWriter file = File.CreateText(MyModPath + "/Data/" + spray.Name + "_decal.sbc");
-                file.Write(DecalHead);
+                StreamWriter decalFile = File.CreateText(MyModPath + "/Data/" + spray.Name + "_decal.sbc");
+                decalFile.Write(DecalHead);
                 for (int i = 1; i <= GlobalSizes; i++)
                 {
-                    file.Write(DecalBody
+                    decalFile.Write(DecalBody
                         .Replace("{name}", spray.Id)
                         .Replace("NoNormalMapHere", spray.Shine != Shine.NONE ? spray.Id + "_n.dds" : "NoNormalMapHere")
                         .Replace("{size}", i.ToString())
                         .Replace("{extra}", "")
-                        .Replace("Textures", $"C:\\Users\\Math0424\\AppData\\Roaming\\SpaceEngineers\\Mods\\[SpraysAddon]{InputName}\\Textures")
+                        //.Replace("Textures", $"C:\\Users\\Math0424\\AppData\\Roaming\\SpaceEngineers\\Mods\\[SpraysAddon]{InputName}\\Textures")
                         );
                 }
 
@@ -180,19 +180,19 @@ namespace MySprayMod
                     {
                         for (int i = 1; i <= GlobalSizes; i++)
                         {
-                            file.Write(DecalBody
+                            decalFile.Write(DecalBody
                                 .Replace("{name}", spray.Id)
                                 .Replace("NoNormalMapHere", spray.Shine != Shine.NONE ? spray.Id + "_n.dds" : "NoNormalMapHere")
                                 .Replace("{size}", i.ToString())
                                 .Replace("{extra}", "_" + f)
-                                .Replace("Textures", $"C:\\Users\\Math0424\\AppData\\Roaming\\SpaceEngineers\\Mods\\[SpraysAddon]{InputName}\\Textures")
+                                //.Replace("Textures", $"C:\\Users\\Math0424\\AppData\\Roaming\\SpaceEngineers\\Mods\\[SpraysAddon]{InputName}\\Textures")
                                 );
                         }
                     }
                 }
 
-                file.Write(DecalFoot);
-                file.Close();
+                decalFile.Write(DecalFoot);
+                decalFile.Close();
             }
 
             //make the thumbnail
@@ -469,21 +469,21 @@ namespace MySprayMod
                     {
                         Flags |= (int)FPS.Fps_1 << 19;
                     }
-                    else if (speed >= 20)
+                    else if (speed >= 12)
                     {
                         Flags |= (int)FPS.Fps_5 << 19;
                     }
-                    else if (speed >= 6)
+                    else if (speed >= 4)
                     {
                         Flags |= (int)FPS.Fps_15 << 19;
                     }
                     else if (speed >= 3)
                     {
-                        Flags |= (int)FPS.Fps_30 << 19;
+                        Flags |= (int)FPS.Fps_20 << 19;
                     }
-                    else if (speed >= 0)
+                    else if (speed >= 2)
                     {
-                        Flags |= (int)FPS.Fps_60 << 19;
+                        Flags |= (int)FPS.Fps_30 << 19;
                     }
                 }
 
@@ -598,8 +598,8 @@ namespace MySprayMod
 
         private enum FPS
         {
-            Fps_60 = 1,
-            Fps_30 = 2,
+            Fps_30 = 1,
+            Fps_20 = 2,
             Fps_15 = 4,
             Fps_5 = 8,
             Fps_1 = 16,

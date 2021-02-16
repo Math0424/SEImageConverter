@@ -22,6 +22,15 @@ namespace SEImageConverter.Resources.Windows
 
             int[] size = Utils.LCDSizeToNum((LCDSize)Converter.Instance.LCDSizeSelection.SelectedItem);
 
+            if (LCDSize.SquareLCD == (LCDSize)Converter.Instance.LCDSizeSelection.SelectedItem)
+            {
+                Converter.Instance.MakeBlueprintOfLCD.Visibility = System.Windows.Visibility.Visible;
+            } 
+            else
+            {
+                Converter.Instance.MakeBlueprintOfLCD.Visibility = System.Windows.Visibility.Hidden;
+            }
+
             image.InterpolativeResize(size[1] * Y, size[0] * X, pixelInterpolate);
 
             image.Depth = bitMode == BitMode.Bit3 ? 3 : 5;

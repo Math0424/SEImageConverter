@@ -45,8 +45,8 @@
             <Label x:Name="ImageYlbl" Margin="136,3,34,0" Foreground="#FF7289DA" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontWeight="Bold" VerticalAlignment="Top" Height="27" Content="LCDYWidth"/>
             <TextBox x:Name="ImageYInput" Margin="141,27,84,0" Text="1" TextWrapping="NoWrap" Background="#FF2C2F33" BorderBrush="#FF23272A" Foreground="#FF7289DA" FlowDirection="LeftToRight" HorizontalContentAlignment="Left" FontWeight="Bold" MaxLines="1" AllowDrop="False" VerticalContentAlignment="Center" Height="18" VerticalAlignment="Top" IsUndoEnabled="False" MaxLength="1" TextChanged="ImageLCDInputChanged"/>
             <Label x:Name="ImageNumberLbl" Margin="114,23,121,0" Foreground="#FF7289DA" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontWeight="Bold" VerticalAlignment="Top" Height="28" Content="X"/>
-            <UniformGrid x:Name="Image2LCDBtnArry" Margin="28,49,27,8" Width="200" Background="#FF99AAB5" Height="200"/>
-            <GroupBox x:Name="Image2LCDBox" Header="Image2LCD" Margin="0,-10,0,0" Foreground="#FF7289DA" BorderBrush="White" d:IsLocked="True"/>
+            <UniformGrid x:Name="Image2LCDBtnArry" Margin="28,49,27,8" Width="200" Background="#FF99AAB5"/>
+            <GroupBox x:Name="Image2LCDBox" Header="Image2LCD" Margin="0,-10,0,0" Foreground="#FF7289DA" BorderBrush="White"/>
         </Grid>
         <Grid x:Name="Gif2LCDGrid" Margin="265,85,0,0" HorizontalAlignment="Left" Width="255" Height="257" VerticalAlignment="Top" Background="#FF2C2F33" d:IsLocked="True" d:IsHidden="True">
             <Label x:Name="Gif2LCDWarning" Margin="10,10,10,0" Foreground="#FFE67575" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontWeight="Bold" VerticalAlignment="Top" Height="26" Content="WARNING: GIF2LCD IS NOT MULTIPLAYER" FontSize="11" d:IsLocked="True"/>
@@ -62,7 +62,7 @@
             <GroupBox x:Name="GIF2LCDBox" Header="GIF2LCD" Margin="0,-10,0,0" Foreground="#FF7289DA" BorderBrush="White" d:IsLocked="True"/>
             <Label x:Name="FunnyBarGifLCDLbl" Margin="10,140,41,0" Foreground="#FF7289DA" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontWeight="Bold" VerticalAlignment="Top" Height="27" Content="Funny green bar to watch load"/>
         </Grid>
-        <Grid x:Name="Image2BlueprintGrid" Margin="265,85,0,0" HorizontalAlignment="Left" Width="255" Height="147" VerticalAlignment="Top" Background="#FF2C2F33" d:IsHidden="True" d:IsLocked="True">
+        <Grid x:Name="Image2BlueprintGrid" Margin="265,85,0,0" HorizontalAlignment="Left" Width="255" Height="147" VerticalAlignment="Top" Background="#FF2C2F33" d:IsLocked="True" d:IsHidden="True">
             <Label x:Name="BlueprintWarningLbl" Margin="10,9,10,0" Foreground="#FFE67575" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontWeight="Bold" VerticalAlignment="Top" Height="26" Content="Large images may be slow when editing" FontSize="11"/>
             <Label x:Name="BlueprintNameLbl" Margin="10,42,176,0" Foreground="#FF7289DA" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontWeight="Bold" VerticalAlignment="Top" Height="27" Content="Name"/>
             <TextBox x:Name="BlueprintNameInput" Margin="75,44,14,0" Text="BlueprintNameHere" TextWrapping="NoWrap" Background="#FF2C2F33" BorderBrush="#FF23272A" Foreground="#FF7289DA" FlowDirection="LeftToRight" HorizontalContentAlignment="Left" FontWeight="Bold" MaxLines="1" AllowDrop="False" VerticalContentAlignment="Center" Height="22" VerticalAlignment="Top" MaxLength="30" TextChanged="BlueprintNameInput_TextChanged"/>
@@ -78,14 +78,15 @@
             <TextBox x:Name="SprayModNameInput" Margin="10,49,296,0" Text="MyFirstSpraysMod" TextWrapping="NoWrap" Background="#FF2C2F33" BorderBrush="#FF23272A" Foreground="#FF7289DA" FlowDirection="LeftToRight" HorizontalContentAlignment="Left" FontWeight="Bold" MaxLines="1" AllowDrop="False" VerticalContentAlignment="Center" Height="22" VerticalAlignment="Top" MaxLength="30" TextChanged="BlueprintNameInput_TextChanged"/>
             <GroupBox x:Name="SpraysModGenBox" Header="SpraysModGenerator" Margin="0,-10,0,0" Foreground="#FF7289DA" BorderBrush="White" d:IsLocked="True"/>
         </Grid>
-        <Grid x:Name="Image2DDSGrid" Margin="265,85,0,0" HorizontalAlignment="Left" Width="255" Height="257" VerticalAlignment="Top" Background="#FF2C2F33" d:IsHidden="True" d:IsLocked="True">
+        <Grid x:Name="Image2DDSGrid" Margin="265,85,0,0" HorizontalAlignment="Left" Width="255" Height="257" VerticalAlignment="Top" Background="#FF2C2F33" d:IsLocked="True" d:IsHidden="True">
             <GroupBox x:Name="Image2DDSBox" Header="Image2DDS" Margin="0,-10,0,0" Foreground="#FF7289DA" BorderBrush="White" d:IsLocked="True"/>
             <TextBlock x:Name="Image2DDSInfo" HorizontalAlignment="Center" Margin="0,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="190" Width="235"><Run Text="Image2DDS is a simple tool that will turn images into a basic DDS image that SE can read, with an optional mask image aswell."/><LineBreak/><Run/><LineBreak/><Run/><LineBreak/><Run Text="I made it because I found generating DDS images for SE to be a pain"/><LineBreak/><Run/><LineBreak/><Run Text="The output is a BC3_UNORM DDS"/><LineBreak/><Run/></TextBlock>
             <CheckBox x:Name="Image2DDSMaskCbx" Content="GenerateMask" HorizontalAlignment="Left" Margin="10,0,0,10" Foreground="#FF7289DA" BorderBrush="#FF2C2F33" Height="15" VerticalAlignment="Bottom" Checked="Image2DDSMaskCbx_Checked"/>
         </Grid>
+        <Button x:Name="MakeBlueprintOfLCD" Content="Make BP" Margin="437,346,22,0" VerticalAlignment="Top" Background="#FF7289DA" BorderBrush="#FF23272A" Foreground="White" FontWeight="Bold" Height="27" FontSize="14" Click="MakeBlueprintOfLCD_Click" d:IsHidden="True" d:IsLocked="True"/>
         <Button x:Name="ConvertBtn" Content="Convert" Margin="437,374,22,0" VerticalAlignment="Top" Background="#FF7289DA" BorderBrush="#FF23272A" Foreground="White" FontWeight="Bold" Height="61" Click="ConvertBtn_Click" FontSize="14" d:IsLocked="True"/>
         <Label x:Name="MadeByLbl" Margin="180,5,225,0" Foreground="#FF7289DA" HorizontalContentAlignment="Left" VerticalContentAlignment="Top" FontWeight="Bold" VerticalAlignment="Top" Height="27" Content="Made by: Math0424" d:IsLocked="True"/>
-        <Rectangle x:Name="RunningGrayout" Stroke="#00000000" Visibility="Hidden" d:IsHidden="True" Focusable="True">
+        <Rectangle x:Name="RunningGrayout" Stroke="#00000000" Visibility="Hidden" d:IsHidden="True" Focusable="True" d:IsLocked="True">
             <Rectangle.Fill>
                 <SolidColorBrush Color="#FF2C2F33" Opacity="0.5"/>
             </Rectangle.Fill>

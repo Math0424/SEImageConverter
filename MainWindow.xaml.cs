@@ -283,5 +283,9 @@ namespace SEImageConverter
             ((ConverterDDSImage)converters[(int)ConvertMode.Image2DDS]).GenerateMask = ((CheckBox)sender).IsChecked.Value;
         }
 
+        private void MakeBlueprintOfLCD_Click(object sender, RoutedEventArgs e)
+        {
+            ((ConverterLCDImage)converters[(int)ConvertMode.Image2LCD]).MakeBlueprint();
+        }
     }
 }
