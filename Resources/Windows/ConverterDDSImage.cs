@@ -35,11 +35,13 @@ namespace SEImageConverter.Resources.Windows
 
             using (MagickImage color = new MagickImage(image.Clone()))
             {
-                int length = Math.Max(color.Height, color.Width) + 2;
-                length -= (length % 4);
+                int height = color.Height + 2;
+                height -= height % 2;
+                int width = color.Width + 2;
+                width -= width % 2;
 
                 color.Format = MagickFormat.Png32;
-                color.Extent(length, length, Gravity.Center, new MagickColor(0, 0, 0, 0));
+                color.Extent(width, height, Gravity.Center, new MagickColor(0, 0, 0, 0));
 
                 color.ColorAlpha(MagickColors.None);
 
@@ -48,7 +50,7 @@ namespace SEImageConverter.Resources.Windows
                 color.Settings.SetDefine(MagickFormat.Dds, "fast-mipmaps", "true");
                 color.Settings.SetDefine(MagickFormat.Dds, "mipmaps", "10");
                 color.Settings.SetDefine(MagickFormat.Dds, "cluster-fit", "true");
-                color.Write(MyImagePath + "_c.dds");
+                color.Write(MyImagePath + ".dds");
 
                 color.Dispose();
             }
@@ -57,11 +59,13 @@ namespace SEImageConverter.Resources.Windows
             {
                 using (MagickImage alpha = new MagickImage(image.Clone()))
                 {
-                    int length = Math.Max(alpha.Height, alpha.Width) + 2;
-                    length -= (length % 4);
+                    int height = alpha.Height + 2;
+                    height -= height % 2;
+                    int width = alpha.Width + 2;
+                    width -= width % 2;
 
                     alpha.Format = MagickFormat.Png;
-                    alpha.Extent(length, length, Gravity.Center, new MagickColor(0, 0, 0, 0));
+                    alpha.Extent(width, height, Gravity.Center, new MagickColor(0, 0, 0, 0));
 
                     alpha.Grayscale();
 
@@ -79,7 +83,7 @@ namespace SEImageConverter.Resources.Windows
                     alpha.Settings.SetDefine(MagickFormat.Dds, "fast-mipmaps", "true");
                     alpha.Settings.SetDefine(MagickFormat.Dds, "mipmaps", "10");
                     alpha.Settings.SetDefine(MagickFormat.Dds, "cluster-fit", "true");
-                    alpha.Write(MyImagePath + "_a.dds");
+                    alpha.Write(MyImagePath + "_mask.dds");
 
                     alpha.Dispose();
                 }
