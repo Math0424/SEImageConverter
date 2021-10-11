@@ -27,7 +27,7 @@ namespace SEImageConverter
         public Converter()
         {
             Instance = this;
-            ResourceLimits.Memory = 500000000;
+            ResourceLimits.Memory = 50000000;
 
             converters = new WindowConverter[Enum.GetValues(typeof(ConvertMode)).Length];
             

@@ -21,7 +21,6 @@ namespace SEImageConverter.Resources.Windows
 
         private List<MySpray> Sprays = new List<MySpray>();
 
-        private const int GlobalSizes = 3;
         private const string MaterialDef = @"<?xml version=""1.0""?>
 <Definitions xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
   <TransparentMaterials>
@@ -46,9 +45,9 @@ namespace SEImageConverter.Resources.Windows
     <Decal>
       <Id>
         <TypeId>DecalDefinition</TypeId>
-        <SubtypeId>{name}_{size}{extra}_spray</SubtypeId>
+        <SubtypeId>{name}{extra}_spray</SubtypeId>
       </Id>
-      <Source>{name}_{size}{extra}</Source>
+      <Source>{name}{extra}</Source>
 	  <Target>Default</Target>
       <Material>
 	    <DecalType>NormalColorExtMap</DecalType>
@@ -56,8 +55,8 @@ namespace SEImageConverter.Resources.Windows
         <ColorMetalTexture>Textures\MySprays\{name}{extra}_c.dds</ColorMetalTexture>
         <AlphamaskTexture>Textures\MySprays\{name}{extra}_a.dds</AlphamaskTexture>
       </Material>
-      <MinSize>{size}</MinSize>
-      <MaxSize>{size}</MaxSize>
+      <MinSize>1</MinSize>
+      <MaxSize>1</MaxSize>
       <Rotation>0</Rotation>
       <RenderDistance>5000.0</RenderDistance>
       <Depth>0.3</Depth>
@@ -163,31 +162,21 @@ namespace MySprayMod
             {
                 StreamWriter decalFile = File.CreateText(MyModPath + "/Data/" + spray.Name + "_decal.sbc");
                 decalFile.Write(DecalHead);
-                for (int i = 1; i <= GlobalSizes; i++)
-                {
-                    decalFile.Write(DecalBody
+                decalFile.Write(DecalBody
                         .Replace("{name}", spray.Id)
                         .Replace("NoNormalMapHere", spray.Shine != Shine.NONE ? spray.Id + "_n.dds" : "NoNormalMapHere")
-                        .Replace("{size}", i.ToString())
                         .Replace("{extra}", "")
-                        //.Replace("Textures", $"C:\\Users\\Math0424\\AppData\\Roaming\\SpaceEngineers\\Mods\\[SpraysAddon]{InputName}\\Textures")
                         );
-                }
 
                 if (((ExtraValues)spray.Flags).HasFlag(ExtraValues.Animated))
                 {
                     for (int f = 0; f < spray.FrameCount; f++)
                     {
-                        for (int i = 1; i <= GlobalSizes; i++)
-                        {
-                            decalFile.Write(DecalBody
+                        decalFile.Write(DecalBody
                                 .Replace("{name}", spray.Id)
                                 .Replace("NoNormalMapHere", spray.Shine != Shine.NONE ? spray.Id + "_n.dds" : "NoNormalMapHere")
-                                .Replace("{size}", i.ToString())
                                 .Replace("{extra}", "_" + f)
-                                //.Replace("Textures", $"C:\\Users\\Math0424\\AppData\\Roaming\\SpaceEngineers\\Mods\\[SpraysAddon]{InputName}\\Textures")
                                 );
-                        }
                     }
                 }
 

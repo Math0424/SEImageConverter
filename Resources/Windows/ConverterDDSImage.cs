@@ -18,11 +18,11 @@ namespace SEImageConverter.Resources.Windows
             {
                 message += "Image, ";
             }
-            if (File.Exists(MyImagePath + "_c.dds"))
+            if (File.Exists(MyImagePath + ".dds"))
             {
                 message += "Converted color image already exsists, ";
             }
-            if (File.Exists(MyImagePath + "_a.dds"))
+            if (File.Exists(MyImagePath + "_mask.dds"))
             {
                 message += "Converted alpha image already exsists, ";
             }
@@ -35,13 +35,6 @@ namespace SEImageConverter.Resources.Windows
 
             using (MagickImage color = new MagickImage(image.Clone()))
             {
-                int height = color.Height + 2;
-                height -= height % 2;
-                int width = color.Width + 2;
-                width -= width % 2;
-
-                color.Format = MagickFormat.Png32;
-                color.Extent(width, height, Gravity.Center, new MagickColor(0, 0, 0, 0));
 
                 color.ColorAlpha(MagickColors.None);
 
@@ -59,13 +52,6 @@ namespace SEImageConverter.Resources.Windows
             {
                 using (MagickImage alpha = new MagickImage(image.Clone()))
                 {
-                    int height = alpha.Height + 2;
-                    height -= height % 2;
-                    int width = alpha.Width + 2;
-                    width -= width % 2;
-
-                    alpha.Format = MagickFormat.Png;
-                    alpha.Extent(width, height, Gravity.Center, new MagickColor(0, 0, 0, 0));
 
                     alpha.Grayscale();
 

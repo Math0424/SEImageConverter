@@ -6,19 +6,19 @@
         xmlns:res="clr-namespace:SEImageConverter.Resources.Enums"
         xmlns:System="clr-namespace:System;assembly=System.Runtime" x:Name="SEImageConverter" x:Class="SEImageConverter.Converter"
         mc:Ignorable="d"
-        Title="SEImageConverter v1.1" Height="506" Width="540" ScrollViewer.VerticalScrollBarVisibility="Disabled" ResizeMode="NoResize" Background="#FF23272A" BorderBrush="#FF2C2F33" Foreground="#FF99AAB5">
+        Title="SEImageConverter v1.2" Height="506" Width="540" ScrollViewer.VerticalScrollBarVisibility="Disabled" ResizeMode="NoResize" Background="#FF23272A" BorderBrush="#FF2C2F33" Foreground="#FF99AAB5">
     <Grid x:Name="MainGrid" VerticalAlignment="Top" Height="471" HorizontalAlignment="Center" Width="540">
         <ComboBox x:Name="SelectionMenu" ItemsSource="{Binding Source={res:EnumBindingSource {x:Type res:ConvertMode}}}" HorizontalAlignment="Left" Margin="10,8,0,0" VerticalAlignment="Top" Width="165" Background="#FF7289DA" BorderBrush="#FF7289DA" Foreground="#FF7289DA" AllowDrop="True" SelectionChanged="SelectionMenu_SelectionChanged" FontWeight="Bold" SelectedIndex="0" d:IsLocked="True"/>
-        <Grid x:Name="ImagePreviewGrid" Margin="10,85,0,0" Background="#FF2C2F33" HorizontalAlignment="Left" Width="250" Height="374" VerticalAlignment="Top" d:IsLocked="True" d:IsHidden="True">
+        <Grid x:Name="ImagePreviewGrid" Margin="10,85,0,0" Background="#FF2C2F33" HorizontalAlignment="Left" Width="250" Height="374" VerticalAlignment="Top" d:IsHidden="True" d:IsLocked="True">
             <GroupBox x:Name="ImagePreviewBox" Header="ImagePreview" Margin="0,-10,0,0" Foreground="#FF7289DA" BorderBrush="White" d:IsLocked="True"/>
-            <Image x:Name="PreviewImage" Margin="22,10,22,0" Height="206" VerticalAlignment="Top" SnapsToDevicePixels="True"/>
+            <Image x:Name="PreviewImage" Margin="22,10,22,0" Height="206" VerticalAlignment="Top" SnapsToDevicePixels="True" d:IsLocked="True"/>
             <Grid x:Name="ImageResizeGrid" Margin="0,217,0,0" d:IsLocked="True">
                 <Label x:Name="SizeSliderValueLbl" Content="x1.00" Margin="0,12,10,0" Foreground="#FF7289DA" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" FontWeight="Bold" VerticalAlignment="Top" Height="25" HorizontalAlignment="Right" Width="63"/>
                 <Label x:Name="ImageSizeLbl" Margin="10,12,115,0" Foreground="#FF7289DA" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" FontWeight="Bold" VerticalAlignment="Top" Height="24" Content="Size: 0x0"/>
                 <Slider x:Name="ImageScaleSlider" Margin="10,35,10,0" VerticalAlignment="Top" Minimum="0.01" LargeChange="0.1" Value="1" Foreground="#00E5E5E5" ValueChanged="ImageSlider_ValueChanged" Maximum="1"/>
                 <GroupBox x:Name="ImageScaleBox" Header="ImageScale" BorderBrush="White" Foreground="#FF7289DA"/>
             </Grid>
-            <Grid x:Name="ImageOptionsGrid" Margin="0,280,0,0">
+            <Grid x:Name="ImageOptionsGrid" Margin="0,280,0,0" d:IsLocked="True">
                 <Label x:Name="InterpolateMethodLbl" Margin="5,0,0,29" Foreground="#FF7289DA" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" FontWeight="Bold" Content="InterpolationMethod" HorizontalAlignment="Left" Width="230" VerticalAlignment="Bottom" d:IsLocked="True"/>
                 <Label x:Name="DitherMethodLbl" Margin="5,0,0,67" Foreground="#FF7289DA" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" FontWeight="Bold" Content="DitherMethod" HorizontalAlignment="Left" Width="230" VerticalAlignment="Bottom" d:IsLocked="True"/>
                 <ComboBox x:Name="InterpolationSelection" ItemsSource="{Binding Source={res:EnumBindingSource {x:Type res:InterpolationMethod}}}" HorizontalAlignment="Left" Margin="10,0,0,10" VerticalAlignment="Bottom" Width="165" Background="#FF7289DA" BorderBrush="#FF7289DA" Foreground="#FF7289DA" AllowDrop="True" FontWeight="Bold" SelectedIndex="0" SelectionChanged="ImageOptionsChanged"/>

@@ -40,11 +40,6 @@ namespace SEImageConverter.Resources.Windows
             {
                 image.Quantize(new QuantizeSettings() { Colors = bitMode == BitMode.Bit3 ? 8 : 32, DitherMethod = (DitherMethod)dither, ColorSpace = ColorSpace.sRGB, TreeDepth = 100 });
             }
-            else
-            {
-                image.Quantize(new QuantizeSettings() { Colors = bitMode == BitMode.Bit3 ? 8 : 32, DitherMethod = DitherMethod.No, ColorSpace = ColorSpace.sRGB, TreeDepth = 100 });
-                image.OrderedDither(dither.ToString());
-            }
 
         }
 
