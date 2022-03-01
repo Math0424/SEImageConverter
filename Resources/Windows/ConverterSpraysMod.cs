@@ -65,27 +65,6 @@ namespace SEImageConverter.Resources.Windows
   </Decals>
 </Definitions>";
 
-        private const string ProgramHead = @"using Sandbox.ModAPI;
-using VRage.Game;
-using VRage.Game.Components;
-
-namespace MySprayMod
-{
-    //Generated using SpraysModGenerator created by Math0424
-    [MySessionComponentDescriptor(MyUpdateOrder.NoUpdate)]
-    class MySprayMod : MySessionComponentBase
-    {
-        public override void Init(MyObjectBuilder_SessionComponent sessionComponent)
-        {
-";
-        private const string ProgramBody = @"MyAPIGateway.Utilities.SendModMessage(35872945762398745, MyAPIGateway.Utilities.SerializeToBinary(@""{inner}""));";
-        private const string ProgramInner = @"{guid}§{group}§{name}§{flags}§§
-";
-        private const string ProgramFoot = @"        
-        }
-    }
-}";
-
         public override string CanConvert()
         {
             string message = "";
@@ -129,22 +108,19 @@ namespace MySprayMod
             //Setup basic file structure
             Directory.CreateDirectory(MyModPath);
             Directory.CreateDirectory(MyModPath + "/Data");
-            Directory.CreateDirectory(MyModPath + "/Data/Scripts");
             Directory.CreateDirectory(MyModPath + "/Textures");
             Directory.CreateDirectory(MyModPath + "/Textures/MySprays");
 
-            StreamWriter program = File.CreateText(MyModPath + "/Data/Scripts/MySprayMod.cs");
-            program.Write(ProgramHead);
-            StringBuilder inner = new StringBuilder();
+            StreamWriter program = File.CreateText(MyModPath + "/Sprays.txt");
             foreach (var spray in Sprays)
             {
-                inner.Append(ProgramInner.Replace("{guid}", spray.Id)
-                    .Replace("{name}", spray.Name)
-                    .Replace("{group}", spray.DirName.Equals(FolderPath) ? InputName : Path.GetFileName(spray.DirName))
-                    .Replace("{flags}", spray.Flags.ToString()));
+                string cleanName = spray.Name.Trim().Replace('[', '-').Replace(']', '-');
+                program.WriteLine($"[{cleanName}]");
+                program.WriteLine($"ID={spray.Id}");
+                program.WriteLine($"Group={(spray.DirName.Equals(FolderPath) ? InputName : Path.GetFileName(spray.DirName))}");
+                program.WriteLine($"Flags={spray.Flags}");
+                program.WriteLine();
             }
-            program.Write(ProgramBody.Replace("{inner}", inner.ToString()));
-            program.Write(ProgramFoot);
             program.Close();
 
             //generate materials
