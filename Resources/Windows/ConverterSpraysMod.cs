@@ -3,6 +3,7 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 using SEImageConverter.Resources.Enums;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -21,21 +22,23 @@ namespace SEImageConverter.Resources.Windows
 
         private List<MySpray> Sprays = new List<MySpray>();
 
-        private const string MaterialDef = @"<?xml version=""1.0""?>
+        private const string MaterialHead = @"<?xml version=""1.0""?>
 <Definitions xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
-  <TransparentMaterials>
-    <TransparentMaterial>
-	  <Id>
-        <TypeId>TransparentMaterialDefinition</TypeId>
-        <SubtypeId>{name}_b</SubtypeId>
-      </Id>
-      <AlphaSaturation>1</AlphaSaturation>
-      <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
-      <SoftParticleDistanceScale>0</SoftParticleDistanceScale>
-      <Texture>Textures\MySprays\{name}_c.dds</Texture>
-	  <Reflectivity>1</Reflectivity>
-    </TransparentMaterial>
-  </TransparentMaterials>
+    <TransparentMaterials>";
+        private const string MaterialBody = @"
+        <TransparentMaterial>
+	      <Id>
+            <TypeId>TransparentMaterialDefinition</TypeId>
+            <SubtypeId>{Id}</SubtypeId>
+          </Id>
+          <AlphaSaturation>1</AlphaSaturation>
+          <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
+          <SoftParticleDistanceScale>0</SoftParticleDistanceScale>
+          <Texture>Textures\MySprays\{ColorMaskName}</Texture>
+	      <Reflectivity>1</Reflectivity>
+        </TransparentMaterial>";
+        private const string MaterialFoot = @"
+    </TransparentMaterials>
 </Definitions>";
 
         private const string DecalHead = @"<?xml version=""1.0""?>
@@ -45,15 +48,15 @@ namespace SEImageConverter.Resources.Windows
     <Decal>
       <Id>
         <TypeId>DecalDefinition</TypeId>
-        <SubtypeId>{name}{extra}_spray</SubtypeId>
+        <SubtypeId>{Name}_spray</SubtypeId>
       </Id>
-      <Source>{name}{extra}</Source>
+      <Source>{Name}</Source>
 	  <Target>Default</Target>
       <Material>
 	    <DecalType>NormalColorExtMap</DecalType>
-        <NormalmapTexture>Textures\MySprays\NoNormalMapHere</NormalmapTexture>
-        <ColorMetalTexture>Textures\MySprays\{name}{extra}_c.dds</ColorMetalTexture>
-        <AlphamaskTexture>Textures\MySprays\{name}{extra}_a.dds</AlphamaskTexture>
+        <NormalmapTexture>Textures\MySprays\{NormalMapName}</NormalmapTexture>
+        <ColorMetalTexture>Textures\MySprays\{ColorMaskName}</ColorMetalTexture>
+        <AlphamaskTexture>Textures\MySprays\{AlphaMaskName}</AlphamaskTexture>
       </Material>
       <MinSize>1</MinSize>
       <MaxSize>1</MaxSize>
@@ -99,7 +102,7 @@ namespace SEImageConverter.Resources.Windows
 
             Converter.Instance.Dispatcher.Invoke(() =>
             {
-                Converter.Instance.SprayModGenProgress.Maximum = ((Sprays.Count - 1) * 2) + 4;
+                Converter.Instance.SprayModGenProgress.Maximum = Sprays.Count;
                 Converter.Instance.SprayModGenProgress.Value = 1;
                 MyModPath = ModPath + "[SpraysAddon]" + Converter.Instance.SprayModNameInput.Text;
                 InputName = Converter.Instance.SprayModNameInput.Text;
@@ -111,6 +114,37 @@ namespace SEImageConverter.Resources.Windows
             Directory.CreateDirectory(MyModPath + "/Textures");
             Directory.CreateDirectory(MyModPath + "/Textures/MySprays");
 
+            //generate the images
+            string ImagePath = MyModPath + "/Textures/MySprays/";
+            
+            List<string> materials = new List<string>();
+            List<string> images = new List<string>();
+            Parallel.ForEach(Sprays, new ParallelOptions() { MaxDegreeOfParallelism = -1 }, spray =>
+            {
+                Converter.Instance.Dispatcher.Invoke(() => { Converter.Instance.SprayModGenProgress.Value += 1; });
+                spray.GenerateSpray(ImagePath, out string body, out string material);
+            
+                materials.Add(material);
+                images.Add(body);
+            
+                spray.Dispose();
+            });
+            
+            //generate materials
+            StreamWriter file = File.CreateText(MyModPath + "/Data/spray_materials.sbc");
+            file.Write(MaterialHead);
+            foreach (var x in materials)
+                file.Write(x);
+            file.Write(MaterialFoot);
+            file.Close();
+            
+            file = File.CreateText(MyModPath + "/Data/spray_textures.sbc");
+            file.Write(DecalHead);
+            foreach (var x in images)
+                file.Write(x);
+            file.Write(DecalFoot);
+            file.Close();
+            
             StreamWriter program = File.CreateText(MyModPath + "/Sprays.txt");
             foreach (var spray in Sprays)
             {
@@ -123,188 +157,121 @@ namespace SEImageConverter.Resources.Windows
             }
             program.Close();
 
-            //generate materials
-            Converter.Instance.Dispatcher.Invoke(() => { Converter.Instance.SprayModGenProgress.Value += 1; });
-            foreach (var spray in Sprays)
-            {
-                StreamWriter file = File.CreateText(MyModPath + "/Data/" + spray.Name + "_mat.sbc");
-                file.Write(MaterialDef.Replace("{name}", spray.Id));
-                file.Close();
-            }
-
-            //generate decals and corresponding sizes
-            Converter.Instance.Dispatcher.Invoke(() => { Converter.Instance.SprayModGenProgress.Value += 1; });
-            foreach (var spray in Sprays)
-            {
-                StreamWriter decalFile = File.CreateText(MyModPath + "/Data/" + spray.Name + "_decal.sbc");
-                decalFile.Write(DecalHead);
-                decalFile.Write(DecalBody
-                        .Replace("{name}", spray.Id)
-                        .Replace("NoNormalMapHere", spray.Shine != Shine.NONE ? spray.Id + "_n.dds" : "NoNormalMapHere")
-                        .Replace("{extra}", "")
-                        );
-
-                if (((ExtraValues)spray.Flags).HasFlag(ExtraValues.Animated))
-                {
-                    for (int f = 0; f < spray.FrameCount; f++)
-                    {
-                        decalFile.Write(DecalBody
-                                .Replace("{name}", spray.Id)
-                                .Replace("NoNormalMapHere", spray.Shine != Shine.NONE ? spray.Id + "_n.dds" : "NoNormalMapHere")
-                                .Replace("{extra}", "_" + f)
-                                );
-                    }
-                }
-
-                decalFile.Write(DecalFoot);
-                decalFile.Close();
-            }
-
             //make the thumbnail
-            Converter.Instance.Dispatcher.Invoke(() => { Converter.Instance.SprayModGenProgress.Value += 1; });
             using (MagickImage thumb = new MagickImage(MagickColors.Transparent, 960, 540))
             {
-                //backgroudn square
-                new Drawables()
-                .Rectangle(0, 85, 960, 355)
-                .FillColor(new MagickColor(55555, 55555, 55555))
-                .Draw(thumb);
-
-                int[] prev = new int[9];
-                for (int i = 0; i < prev.Length; i++)
+                List<string> randomImages = new List<string>();
+                for (int i = 0; i < 10; i++)
                 {
                     int random = r.Next(Sprays.Count);
                     var spray = Sprays[random];
-
-                    if (!((ExtraValues)spray.Flags).HasFlag(ExtraValues.Hidden) && prev.Contains(random))
+                    var path = spray.BasePath;
+                    if (!((ExtraValues)spray.Flags).HasFlag(ExtraValues.Hidden) && randomImages.Contains(path))
                     {
-                        for (int ii = 0; ii < prev.Length; ii++)
+                        for (int ii = 0; ii < 10; ii++)
                         {
                             random = r.Next(Sprays.Count);
                             spray = Sprays[random];
-                            if (!((ExtraValues)spray.Flags).HasFlag(ExtraValues.Hidden) && !prev.Contains(random))
+                            if (!((ExtraValues)spray.Flags).HasFlag(ExtraValues.Hidden) && !randomImages.Contains(path))
                                 break;
                         }
                     }
-                    prev[i] = random;
+                    randomImages.Add(path);
+                }
 
-                    using (MagickImage overlay = (MagickImage)spray.Images[0].Clone())
+                for(int i = 0; i < 10; i++)
+                {
+                    string path = randomImages[i % randomImages.Count];
+                    using (MagickImage image = new MagickImage(path))
                     {
-                        overlay.Trim();
-                        overlay.Resize(150, 150);
-                        overlay.Colorize(MagickColors.Black, new Percentage(1));
-                        thumb.Composite(overlay, (i * 100) + 5, 145 + (i % 2 == 0 ? 50 : -50), CompositeOperator.Over);
+                        if (image.Width > image.Height)
+                            image.Resize(new MagickGeometry("x270"));
+                        else
+                            image.Resize(new MagickGeometry("270x"));
+                        image.Crop(192, 270, Gravity.Center);
+                        thumb.Composite(image, Gravity.West, 192 * (i >= 5 ? i - 5 : i), 135 * (i >= 5 ? 1 : -1), CompositeOperator.Over);
                     }
                 }
 
-                thumb.ColorAlpha(new MagickColor((ushort)r.Next(ushort.MaxValue), (ushort)r.Next(ushort.MaxValue), (ushort)r.Next(ushort.MaxValue)));
+                MagickColor mcolor = new MagickColor((ushort)r.Next(ushort.MaxValue), (ushort)r.Next(ushort.MaxValue), (ushort)r.Next(ushort.MaxValue));
+
+                var readSettings = new MagickReadSettings()
+                {
+                    Height = 540,
+                    Width = 600
+                };
+                readSettings.SetDefine("gradient:direction", "east");
+                using (MagickImage y = new MagickImage($"gradient:{mcolor.ToHexString()}-none", readSettings))
+                {
+                    y.Evaluate(Channels.Alpha, EvaluateOperator.Multiply, 0.75);
+                    thumb.Composite(y, Gravity.West, 0, 0, CompositeOperator.Atop);
+                }
 
                 new Drawables()
-                .FontPointSize(60)
-                .Font("Inter_FXH", FontStyleType.Normal, FontWeight.Bold, FontStretch.ExtraExpanded)
-                .StrokeColor(MagickColors.Black)
-                .FillColor(MagickColors.Black)
-                .Text(480, 60, InputName)
-                .TextAlignment(TextAlignment.Center)
-                .Draw(thumb);
+                    .FontPointSize(Math.Min(120, 1500 / InputName.Length))
+                    .Font("Inter_FXH", FontStyleType.Normal, FontWeight.Bold, FontStretch.ExtraExpanded)
+                    .FillColor(mcolor)
+                    .StrokeColor(MagickColors.Black)
+                    .BorderColor(MagickColors.Black)
+                    .Text(10, 100, $"{InputName}")
+                    .TextAlignment(TextAlignment.Left)
+                    .Draw(thumb);
 
                 new Drawables()
-                .FontPointSize(60)
-                .Font("Inter_FXH", FontStyleType.Normal, FontWeight.Bold, FontStretch.ExtraExpanded)
-                .StrokeColor(MagickColors.Black)
-                .FillColor(MagickColors.Black)
-                .Text(480, 420, "Made using\nsprays mod generator")
-                .TextAlignment(TextAlignment.Center)
-                .Draw(thumb);
+                    .FontPointSize(40)
+                    .Font("Inter_FXH", FontStyleType.Normal, FontWeight.Bold, FontStretch.ExtraExpanded)
+                    .FillColor(mcolor)
+                    .StrokeColor(MagickColors.Black)
+                    .BorderColor(MagickColors.Black)
+                    .Text(10, 160, $"Sprays mod generator")
+                    .TextAlignment(TextAlignment.Left)
+                    .Draw(thumb);
 
                 new Drawables()
-                .FontPointSize(20)
-                .Font("Inter_FXH", FontStyleType.Normal, FontWeight.Normal, FontStretch.ExtraExpanded)
-                .StrokeColor(MagickColors.Black)
-                .FillColor(MagickColors.Black)
-                .Text(950, 530, $"Over {(Sprays.Count / 10) * 10} images")
-                .TextAlignment(TextAlignment.Right)
-                .Draw(thumb);
+                    .FontPointSize(50)
+                    .Font("Inter_FXH", FontStyleType.Normal, FontWeight.Bold, FontStretch.ExtraExpanded)
+                    .FillColor(mcolor)
+                    .StrokeColor(MagickColors.Black)
+                    .BorderColor(MagickColors.Black)
+                    .Text(10, 520, $"Over {(Sprays.Count / 10) * 10} images")
+                    .TextAlignment(TextAlignment.Left)
+                    .Draw(thumb);
 
                 thumb.Write(MyModPath + "/THUMB.jpg");
             }
+            
 
-            //generate the images
-            string ImagePath = MyModPath + "/Textures/MySprays/";
-            Parallel.ForEach(Sprays, new ParallelOptions() { MaxDegreeOfParallelism = 10 }, spray =>
-            {
-                string imagePath = ImagePath + spray.Id;
-
-                Converter.Instance.Dispatcher.Invoke(() => { Converter.Instance.SprayModGenProgress.Value += 1; });
-
-                SaveImageToFile(spray.Images[0], imagePath, spray.Shine);
-                if (((ExtraValues)spray.Flags).HasFlag(ExtraValues.Animated))
-                {
-                    Converter.Instance.Dispatcher.Invoke(() => { Converter.Instance.SprayModGenProgress.Maximum += spray.FrameCount; });
-                    for (int i = 0; i < spray.FrameCount; i++)
-                    {
-                        SaveImageToFile(spray.Images[i], imagePath + "_" + i, spray.Shine);
-                        Converter.Instance.Dispatcher.Invoke(() => { Converter.Instance.SprayModGenProgress.Value += 1; });
-                    }
-                }
-
-                Converter.Instance.Dispatcher.Invoke(() => { Converter.Instance.SprayModGenProgress.Value += 1; });
-
-                spray.Dispose();
-
-            });
 
         }
 
-        private void SaveImageToFile(MagickImage image, string name, Shine shine)
+        private bool SupportedImageFormat(string file)
         {
-
-            using (MagickImage newImage = (MagickImage)image.Clone())
+            string val = Path.GetExtension(file).Substring(1).ToLower();
+            val = char.ToUpper(val[0]) + val.Substring(1);
+            MagickFormat format;
+            if (!Enum.TryParse(val, out format))
             {
-                newImage.Format = MagickFormat.Dds;
-                newImage.Settings.SetDefine(MagickFormat.Dds, "compression", "dxt5"); //dxt1, dxt5, none
-                newImage.Settings.SetDefine(MagickFormat.Dds, "fast-mipmaps", "true"); //quickly do nothing
-                newImage.Settings.SetDefine(MagickFormat.Dds, "mipmaps", "0");
-                newImage.Settings.SetDefine(MagickFormat.Dds, "cluster-fit", "true");
-
-                newImage.Write(name + "_c.dds");
-
-                newImage.Grayscale();
-                foreach (Pixel p in newImage.GetPixels())
-                {
-                    MagickColor c = (MagickColor)p.ToColor();
-                    p.SetChannel(0, c.A);
-                    p.SetChannel(1, 0);
-                }
-                newImage.Write(name + "_a.dds");
+                Trace.WriteLine($"cannot find format {val}");
+                return false;
             }
-
-            if (shine != Shine.NONE)
+            switch(format)
             {
-
-                using (MagickImage shiny = (MagickImage)image.Clone())
-                {
-                    shiny.Evaluate(Channels.Red, EvaluateOperator.Set, 32767);
-                    shiny.Evaluate(Channels.Green, EvaluateOperator.Set, 32767);
-                    shiny.Evaluate(Channels.Blue, EvaluateOperator.Set, 65535);
-                    shiny.Evaluate(Channels.Alpha, EvaluateOperator.Subtract, (ushort)shine);
-
-                    shiny.Format = MagickFormat.Dds;
-                    shiny.Settings.SetDefine(MagickFormat.Dds, "compression", "dxt5"); //dxt1, dxt5, none
-                    shiny.Settings.SetDefine(MagickFormat.Dds, "fast-mipmaps", "true"); //quickly do nothing
-                    shiny.Settings.SetDefine(MagickFormat.Dds, "mipmaps", "0");
-                    shiny.Settings.SetDefine(MagickFormat.Dds, "cluster-fit", "true");
-                    shiny.Write(name + "_n.dds");
-                }
+                case MagickFormat.Png:
+                case MagickFormat.Jpeg:
+                case MagickFormat.Gif:
+                case MagickFormat.Bmp:
+                case MagickFormat.Jpg:
+                case MagickFormat.Tif:
+                case MagickFormat.Dds: 
+                    return true;
+                default: return false;
             }
         }
 
         private void UpdateImages()
         {
             foreach (MySpray s in Sprays)
-            {
                 s.Dispose();
-            }
             Sprays.Clear();
             Converter.Instance.SprayModNameInput.Text = Path.GetFileName(FolderPath);
             Converter.Instance.RunningGrayout.Visibility = System.Windows.Visibility.Visible;
@@ -315,15 +282,13 @@ namespace SEImageConverter.Resources.Windows
                 try
                 {
                     Dictionary<string, int> myImages = new Dictionary<string, int>();
-                    foreach (string s in Directory.GetFiles(FolderPath, "*.*", SearchOption.AllDirectories).Where(s => s.EndsWith(".png") || s.EndsWith(".gif")))
+                    foreach (string s in Directory.GetFiles(FolderPath, "*.*", SearchOption.AllDirectories).Where(s => SupportedImageFormat(s)))
                     {
                         Sprays.Add(new MySpray(s));
 
                         string group = Path.GetDirectoryName(s).Equals(FolderPath) ? baseGroup : Path.GetFileName(Path.GetDirectoryName(s));
                         if (!myImages.ContainsKey(group))
-                        {
                             myImages[group] = 0;
-                        }
                         myImages[group] += 1;
                     }
 
@@ -372,7 +337,6 @@ namespace SEImageConverter.Resources.Windows
         {
             Utils.SetVisibility(Converter.Instance.FileSelectGrid, visible);
             Utils.SetVisibility(Converter.Instance.SpraysModGenGrid, visible);
-
             Utils.SetVisibility(Converter.Instance.ConvertBtn, visible);
         }
 
@@ -392,7 +356,6 @@ namespace SEImageConverter.Resources.Windows
                 Converter.Instance.SprayModGenFolders.Text = "Folders here";
                 Converter.Instance.SprayModGenProgress.Value = 0;
             });
-
         }
 
         private class MySpray : IDisposable
@@ -417,95 +380,119 @@ namespace SEImageConverter.Resources.Windows
 
                 Id = GetFileID(path).ToString();
                 DirName = Path.GetDirectoryName(path);
+            }
 
-                Images = GetBaseImage(path, out int speed);
-
-                if (((ExtraValues)Flags).HasFlag(ExtraValues.Animated) && Images.Length == 1)
+            private void WriteImage(string path, int i, out string body)
+            {
+                using (MagickImage newImage = (MagickImage)Images[i].Clone())
                 {
-                    Flags &= (int)ExtraValues.Animated;
+                    newImage.Format = MagickFormat.Dds;
+                    newImage.Settings.SetDefine(MagickFormat.Dds, "compression", "dxt5"); //dxt1, dxt5, none
+                    newImage.Settings.SetDefine(MagickFormat.Dds, "fast-mipmaps", "true"); //quickly do nothing
+                    newImage.Settings.SetDefine(MagickFormat.Dds, "mipmaps", "0");
+                    newImage.Settings.SetDefine(MagickFormat.Dds, "cluster-fit", "true");
+
+                    body = DecalBody
+                           .Replace("{NormalMapName}", Shine != Shine.NONE ? $"{Id}_{i}_n.dds" : "NoNormalMap")
+                           .Replace("{AlphaMaskName}", $"{Id}_{i}_a.dds")
+                           .Replace("{ColorMaskName}", $"{Id}_{i}_c.dds");
+
+                    if (((ExtraValues)Flags).HasFlag(ExtraValues.Animated))
+                        body = body.Replace("{Name}", $"{Id}_{i}");
+                    else
+                        body = body.Replace("{Name}", $"{Id}");
+
+
+                    newImage.Write(Path.Combine(path, $"{Id}_{i}_c.dds"));
+
+                    newImage.Alpha(AlphaOption.Extract);
+                    newImage.Alpha(AlphaOption.Transparent);
+                    newImage.Write(Path.Combine(path, $"{Id}_{i}_a.dds"));
                 }
 
-                if (((ExtraValues)Flags).HasFlag(ExtraValues.Animated))
+                if (Shine != Shine.NONE)
                 {
-                    FrameCount = Math.Min(Images.Length, 255);
-                    Flags |= (uint)FrameCount << 24;
+                    using (MagickImage shiny = (MagickImage)Images[i].Clone())
+                    {
+                        shiny.Evaluate(Channels.Red, EvaluateOperator.Set, 32767);
+                        shiny.Evaluate(Channels.Green, EvaluateOperator.Set, 32767);
+                        shiny.Evaluate(Channels.Blue, EvaluateOperator.Set, 65535);
+                        shiny.Evaluate(Channels.Alpha, EvaluateOperator.Subtract, (ushort)Shine);
 
+                        shiny.Format = MagickFormat.Dds;
+                        shiny.Settings.SetDefine(MagickFormat.Dds, "compression", "dxt5"); //dxt1, dxt5, none
+                        shiny.Settings.SetDefine(MagickFormat.Dds, "fast-mipmaps", "true"); //quickly do nothing
+                        shiny.Settings.SetDefine(MagickFormat.Dds, "mipmaps", "0");
+                        shiny.Settings.SetDefine(MagickFormat.Dds, "cluster-fit", "true");
+                        shiny.Write(Path.Combine(path, $"{Id}_{i}_n.dds"));
+                    }
+                }
+            }
+
+            public void GenerateSpray(string path, out string decalBody, out string materialName)
+            {
+                if (Path.GetExtension(BasePath).ToLower().Equals(".gif"))
+                {
+                    MagickImageCollection collection = new MagickImageCollection(BasePath);
+                    Images = new MagickImage[collection.Count];
+                    for (int i = 0; i < Images.Length; i++)
+                        Images[i] = collection[i] as MagickImage;
+
+                    int speed = Images[0].AnimationDelay;
                     if (speed >= 60)
-                    {
                         Flags |= (int)FPS.Fps_1 << 19;
-                    }
                     else if (speed >= 12)
-                    {
                         Flags |= (int)FPS.Fps_5 << 19;
-                    }
                     else if (speed >= 4)
-                    {
                         Flags |= (int)FPS.Fps_15 << 19;
-                    }
                     else if (speed >= 3)
-                    {
                         Flags |= (int)FPS.Fps_20 << 19;
-                    }
                     else if (speed >= 2)
-                    {
                         Flags |= (int)FPS.Fps_30 << 19;
+
+                    if (((ExtraValues)Flags).HasFlag(ExtraValues.Animated) && Images.Length == 1)
+                        Flags &= (int)ExtraValues.Animated;
+
+                    if (((ExtraValues)Flags).HasFlag(ExtraValues.Animated))
+                    {
+                        FrameCount = Math.Min(Images.Length, 255);
+                        Flags |= (uint)FrameCount << 24;
                     }
                 }
+                else
+                {
+                    Images = new MagickImage[1];
+                    Images[0] = new MagickImage(BasePath);
+                }
 
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < Images.Length; i++)
+                {
+                    MagickImage image = Images[i];
+
+                    int length = Math.Max(image.Height, image.Width) + 2;
+                    length -= (length % 4);
+
+                    image.Format = MagickFormat.Png32;
+                    image.Extent(length, length, Gravity.Center, new MagickColor(0, 0, 0, 0));
+                    //image.ColorAlpha(MagickColors.None);
+
+                    WriteImage(path, i, out string output);
+                    builder.Append(output);
+                }
+                decalBody = builder.ToString();
+                materialName = MaterialBody
+                    .Replace("{ColorMaskName}", $"{Id}_{0}_c.dds")
+                    .Replace("{Id}", $"{Id}_b");
             }
 
             public void Dispose()
             {
                 if (Images != null)
-                {
                     foreach (MagickImage image in Images)
-                    {
                         image.Dispose();
-                    }
-                }
                 Images = null;
             }
-        }
-
-        private static MagickImage[] GetBaseImage(string s, out int speed)
-        {
-            MagickImage[] images;
-
-            if (Path.GetExtension(s).ToLower().Equals(".gif"))
-            {
-                MagickImageCollection collection = new MagickImageCollection(s);
-                images = new MagickImage[collection.Count];
-                for (int i = 0; i < images.Length; i++)
-                {
-                    images[i] = collection[i] as MagickImage;
-                }
-
-                using (MagickImage temp = new MagickImage(s))
-                {
-                    speed = temp.AnimationDelay;
-                }
-            }
-            else
-            {
-                images = new MagickImage[1];
-                images[0] = new MagickImage(s);
-                speed = 0;
-            }
-
-            for (int i = 0; i < images.Length; i++)
-            {
-                MagickImage image = images[i];
-
-                int length = Math.Max(image.Height, image.Width) + 2;
-                length -= (length % 4);
-
-                image.Format = MagickFormat.Png32;
-                image.Extent(length, length, Gravity.Center, new MagickColor(0, 0, 0, 0));
-
-                image.ColorAlpha(MagickColors.None);
-            }
-
-            return images;
         }
 
         private static Guid GetFileID(string path)
@@ -533,11 +520,8 @@ namespace SEImageConverter.Resources.Windows
             if (s.Contains("_ADMIN")) myFlags |= ExtraValues.AdminOnly;
 
             if (Path.GetExtension(s).ToLower().Equals(".gif"))
-            {
                 myFlags |= ExtraValues.Animated;
-            }
             flags = (uint)myFlags;
-
 
             shine = Shine.NONE;
             if (s.Contains("_SHINYMAX")) shine = Shine.SHINYMAX;
