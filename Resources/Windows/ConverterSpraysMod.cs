@@ -1,5 +1,4 @@
 ﻿using ImageMagick;
-using Microsoft.WindowsAPICodePack.Dialogs;
 using SEImageConverter.Resources.Enums;
 using System;
 using System.Collections.Generic;
@@ -10,6 +9,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace SEImageConverter.Resources.Windows
 {
@@ -315,19 +315,16 @@ namespace SEImageConverter.Resources.Windows
 
         public override void SelectFile()
         {
-            CommonOpenFileDialog openFileDialog = new CommonOpenFileDialog
+            FolderBrowserEx.FolderBrowserDialog openFileDialog = new FolderBrowserEx.FolderBrowserDialog
             {
                 Title = "Browse folders",
-                Multiselect = false,
-                EnsurePathExists = true,
-                EnsureValidNames = true,
-                IsFolderPicker = true,
+                AllowMultiSelect = false,
             };
 
-            if (openFileDialog.ShowDialog() == CommonFileDialogResult.Ok)
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                FolderPath = openFileDialog.FileName;
-                Converter.Instance.FilePathTxt.Text = openFileDialog.FileName;
+                FolderPath = openFileDialog.SelectedFolder;
+                Converter.Instance.FilePathTxt.Text = openFileDialog.SelectedFolder;
 
                 UpdateImages();
             }

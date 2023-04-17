@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FolderBrowserEx" Version="1.0.1" />
     <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.0.1" />
-    <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
   </ItemGroup>
 
 </Project>
