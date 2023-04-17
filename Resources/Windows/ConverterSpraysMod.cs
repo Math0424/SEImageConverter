@@ -246,12 +246,14 @@ namespace SEImageConverter.Resources.Windows
 
         private bool SupportedImageFormat(string file)
         {
+            if (!Path.HasExtension(file))
+                return false;
+
             string val = Path.GetExtension(file).Substring(1).ToLower();
             val = char.ToUpper(val[0]) + val.Substring(1);
             MagickFormat format;
             if (!Enum.TryParse(val, out format))
             {
-                Trace.WriteLine($"cannot find format {val}");
                 return false;
             }
             switch(format)
@@ -399,11 +401,9 @@ namespace SEImageConverter.Resources.Windows
                     else
                         body = body.Replace("{Name}", $"{Id}");
 
-
                     newImage.Write(Path.Combine(path, $"{Id}_{i}_c.dds"));
 
                     newImage.Alpha(AlphaOption.Extract);
-                    newImage.Alpha(AlphaOption.Transparent);
                     newImage.Write(Path.Combine(path, $"{Id}_{i}_a.dds"));
                 }
 
