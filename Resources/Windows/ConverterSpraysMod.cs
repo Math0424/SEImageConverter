@@ -44,6 +44,7 @@ namespace SEImageConverter.Resources.Windows
         private const string DecalHead = @"<?xml version=""1.0""?>
 <Definitions xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
   <Decals>";
+        //<DecalType>NormalColorExtMap</DecalType>
         private const string DecalBody = @"
     <Decal>
       <Id>
@@ -53,7 +54,6 @@ namespace SEImageConverter.Resources.Windows
       <Source>{Name}</Source>
 	  <Target>Default</Target>
       <Material>
-	    <DecalType>NormalColorExtMap</DecalType>
         <NormalmapTexture>Textures\MySprays\{NormalMapName}</NormalmapTexture>
         <ColorMetalTexture>Textures\MySprays\{ColorMaskName}</ColorMetalTexture>
         <AlphamaskTexture>Textures\MySprays\{AlphaMaskName}</AlphamaskTexture>
@@ -401,10 +401,13 @@ namespace SEImageConverter.Resources.Windows
                     else
                         body = body.Replace("{Name}", $"{Id}");
 
+                    using var alphaImage = newImage.Clone();
+                    alphaImage.Alpha(AlphaOption.Extract);
+
+                    newImage.Composite(alphaImage, CompositeOperator.Multiply, Channels.RGB);
                     newImage.Write(Path.Combine(path, $"{Id}_{i}_c.dds"));
 
-                    newImage.Alpha(AlphaOption.Extract);
-                    newImage.Write(Path.Combine(path, $"{Id}_{i}_a.dds"));
+                    alphaImage.Write(Path.Combine(path, $"{Id}_{i}_a.dds"));
                 }
 
                 if (Shine != Shine.NONE)
