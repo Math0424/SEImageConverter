@@ -472,10 +472,8 @@ namespace SEImageConverter.Resources.Windows
 
                     int length = Math.Max(image.Height, image.Width) + 2;
                     length -= (length % 4);
-
                     image.Format = MagickFormat.Png32;
                     image.Extent(length, length, Gravity.Center, new MagickColor(0, 0, 0, 0));
-                    //image.ColorAlpha(MagickColors.None);
 
                     WriteImage(path, i, out string output);
                     builder.Append(output);
